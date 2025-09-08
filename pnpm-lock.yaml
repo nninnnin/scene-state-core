@@ -134,6 +134,10 @@ importers:
       react:
         specifier: '>=18'
         version: 19.1.1
+    devDependencies:
+      '@types/react':
+        specifier: ^19.1.12
+        version: 19.1.12
 
 packages:
 

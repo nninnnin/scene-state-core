@@ -23,5 +23,8 @@
     "test": "vitest run",
     "typecheck": "tsc --project tsconfig.json --noEmit",
     "lint": "eslint ."
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.12"
   }
 }
