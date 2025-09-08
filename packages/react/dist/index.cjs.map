@@ -1,0 +1,1 @@
+{"version":3,"sources":["../src/index.ts"],"names":[],"mappings":";;;AAAO,SAAS,UAAA,GAAa;AAC3B,EAAA,OAAO,aAAA;AACT","file":"index.cjs","sourcesContent":["export function useExample() {\n  return \"react-0.0.0\";\n}\n"]}
