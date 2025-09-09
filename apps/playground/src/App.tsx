@@ -1,5 +1,4 @@
 import { Canvas } from "@react-three/fiber";
-import "./App.css";
 
 import { version as coreVersion } from "@ssc/core";
 import { OrbitControls } from "@react-three/drei";

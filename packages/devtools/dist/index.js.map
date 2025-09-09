@@ -1,0 +1,1 @@
+{"version":3,"sources":["../src/index.ts"],"names":[],"mappings":";AAAO,IAAM,OAAO,MAAM","file":"index.js","sourcesContent":["export const ping = () => \"devtools-0.0.0\";\n"]}
