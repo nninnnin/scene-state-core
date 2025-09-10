@@ -1,12 +1,5 @@
-export type EntityId = string;
-
-export interface Entity {
-  name: string;
-}
-
-export interface State {
-  entities: Record<EntityId, Entity>;
-}
+import { EntityId } from '../common';
+import { State } from './types';
 
 export function createEmptyState(): State {
   return { entities: {} };
