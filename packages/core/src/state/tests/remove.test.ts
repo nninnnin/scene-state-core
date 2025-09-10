@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { addEntity, createEmptyState, removeEntity } from '../state';
+import { addEntity, createEmptyState, removeEntity } from '../';
 
 describe('removeEntity', () => {
   it('불변성을 보장하며 엔티티를 제거한다', () => {

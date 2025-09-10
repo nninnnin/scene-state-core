@@ -2,7 +2,7 @@ import { EntityId } from '../common';
 import { State } from './types';
 
 export function createEmptyState(): State {
-  return { entities: {} };
+  return { entities: {}, components: { transform: {} } };
 }
 
 export function removeEntity(state: State, id: EntityId): State {
@@ -28,3 +28,5 @@ export function addEntity(state: State, id: EntityId, name: string): State {
     },
   };
 }
+
+export * from './types';

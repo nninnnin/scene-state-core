@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { addEntity, createEmptyState } from '../state';
+import { addEntity, createEmptyState } from '..';
 
 describe('State basic', () => {
   it('createEmptyState gives an empty entities object', () => {
