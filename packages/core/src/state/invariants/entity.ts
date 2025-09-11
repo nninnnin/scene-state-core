@@ -1,4 +1,5 @@
 import { StateInvariant } from ".";
+import { DuplicateEntityError } from "../errors";
 import { State } from "../types";
 
 export const entityInvariants: StateInvariant[] =
@@ -7,13 +8,13 @@ export const entityInvariants: StateInvariant[] =
     (state: State) => {
       const names = new Set<string>();
 
-      for (const id in state.entities) {
+      for (const entityId in state.entities) {
         const name =
-          state.entities[id].name;
+          state.entities[entityId].name;
 
         if (names.has(name)) {
-          throw new Error(
-            `[Invariant] Duplicate entity name: ${name}`,
+          throw new DuplicateEntityError(
+            entityId,
           );
         }
 

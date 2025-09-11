@@ -12,7 +12,7 @@ import {
   DEFAULT_TRANSFORM,
   setTransform,
 } from ".";
-import { EntityNotFoundError } from "./errors";
+import { EntityNotFoundError } from "../common/errors";
 
 describe("transform/setTransform", () => {
   it("존재하지 않는 엔티티는 예외 처리한다.", () => {

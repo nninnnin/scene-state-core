@@ -1,9 +1,9 @@
 import { EntityId } from "../common";
+import { EntityNotFoundError } from "../common/errors";
 import {
   State,
   validateState,
 } from "../state";
-import { EntityNotFoundError } from "./errors";
 import { Transform } from "./types";
 
 export const DEFAULT_TRANSFORM = {
