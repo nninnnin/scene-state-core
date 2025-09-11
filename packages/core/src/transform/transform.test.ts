@@ -37,11 +37,6 @@ describe("transform/setTransform", () => {
       "Cube",
     );
 
-    console.log(
-      "first state: ",
-      firstState,
-    );
-
     const secondState = setTransform(
       firstState,
       "e1",
@@ -52,6 +47,32 @@ describe("transform/setTransform", () => {
       },
     );
 
-    console.log(secondState);
+    expect(
+      secondState.components.transform[
+        "e1"
+      ],
+    ).toEqual({
+      position: [1, 2, 3],
+      rotation: [0, 0.5, 0],
+      scale: [2, 2, 2],
+    });
+
+    // immutability checks
+    // 1) reference of whole state is changed
+    expect(secondState).not.toBe(
+      firstState,
+    );
+
+    // 2) reference of components is changed
+    expect(
+      secondState.components,
+    ).not.toBe(firstState.components);
+
+    // 3) reference of transform component is changed
+    expect(
+      secondState.components.transform,
+    ).not.toBe(
+      firstState.components.transform,
+    );
   });
 });
