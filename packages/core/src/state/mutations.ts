@@ -1,12 +1,19 @@
 import { State } from "./types";
 import { EntityId } from "../common";
 import { validateState } from "./invariants";
+import { DuplicateEntityError } from "./errors";
 
 export function addEntity(
   state: State,
   id: EntityId,
   name: string,
 ): State {
+  const hasAlready = state.entities[id];
+
+  if (hasAlready) {
+    throw new DuplicateEntityError(id);
+  }
+
   const next = {
     ...state,
     entities: {
