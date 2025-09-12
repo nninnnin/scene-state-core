@@ -1,5 +1,5 @@
-import { StateInvariant } from ".";
-import { State } from "../types";
+import { StateInvariant } from "..";
+import { State } from "../../types";
 
 // 트랜스폼 관련 불변식 모음
 export const transformInvariants: StateInvariant[] =

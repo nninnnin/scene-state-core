@@ -1,6 +1,6 @@
 import { State } from "../types";
-import { entityInvariants } from "./entity";
-import { transformInvariants } from "./transform";
+import { entityInvariants } from "./checkers/entity";
+import { transformInvariants } from "./checkers/transform";
 
 export type StateInvariant = (
   state: State,
@@ -14,8 +14,8 @@ const registry = [
 export function validateState(
   state: State,
 ) {
-  for (const validator of registry) {
-    validator(state);
+  for (const checker of registry) {
+    checker(state);
   }
 }
 

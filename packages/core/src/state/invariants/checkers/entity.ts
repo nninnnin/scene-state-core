@@ -1,6 +1,6 @@
-import { StateInvariant } from ".";
-import { DuplicateEntityError } from "../errors";
-import { State } from "../types";
+import { StateInvariant } from "..";
+import { DuplicateEntityError } from "../../errors";
+import { State } from "../../types";
 
 export const entityInvariants: StateInvariant[] =
   [
