@@ -3,7 +3,7 @@ import { State } from "../../state";
 import { Command } from "../types";
 import { setTransform } from "../../transform";
 
-export class SetTrasnformCommand
+export class SetTransformCommand
   implements Command
 {
   readonly type = "SetTransform";

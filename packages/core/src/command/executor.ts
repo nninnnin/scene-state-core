@@ -12,7 +12,7 @@ export interface ExecuteOptions {
 export function applyCommand(
   state: State,
   command: Command,
-  options: ExecuteOptions,
+  options: ExecuteOptions = {},
 ) {
   const next = command.execute(state);
 
@@ -24,7 +24,7 @@ export function applyCommand(
 export function undoCommand(
   state: State,
   command: Command,
-  options: ExecuteOptions,
+  options: ExecuteOptions = {},
 ) {
   const next = command.undo(state);
 

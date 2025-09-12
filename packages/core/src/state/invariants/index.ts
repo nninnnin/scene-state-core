@@ -17,6 +17,8 @@ export function validateState(
   for (const checker of registry) {
     checker(state);
   }
+
+  return state;
 }
 
 export function registerInvariant(
