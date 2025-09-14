@@ -1,6 +1,14 @@
 import { CompositeCommand } from "../command/CompositeCommand";
 import { Command } from "../command/types";
-import { State } from "../state";
+import {
+  State,
+  validateState,
+} from "../state";
+import {
+  rollbackTo,
+  Snapshot,
+  takeSnapshot,
+} from "../state/snapshot";
 
 type Entry = {
   label: string;
@@ -11,10 +19,19 @@ type CollectCommand = (
   command: Command,
 ) => void;
 
+type JumpOptions = {
+  history?: "replace" | "preserve";
+};
+
 export class HistoryManager {
   private _undo: Entry[] = [];
   private _redo: Entry[] = [];
   private _state: State;
+
+  private checkpoints: Map<
+    string,
+    Snapshot
+  > = new Map();
 
   constructor(initial: State) {
     this._state = initial;
@@ -94,7 +111,7 @@ export class HistoryManager {
     }
 
     this._undo.push({ label, command });
-    this._redo = [];
+    this._redo = []; // reset future
     this._state = next;
   }
 
@@ -127,5 +144,67 @@ export class HistoryManager {
   clear() {
     this._undo = [];
     this._redo = [];
+  }
+
+  createCheckpoint(
+    id: string,
+  ): Snapshot {
+    const snap = takeSnapshot(
+      this._state,
+    );
+
+    this.checkpoints.set(id, snap);
+
+    return snap;
+  }
+
+  jumpToSnapshot(
+    snapshot: Snapshot,
+    opts: JumpOptions = {
+      history: "replace",
+    },
+  ) {
+    const next = rollbackTo(snapshot);
+    validateState(next);
+
+    this._state = next;
+
+    if (opts.history === "replace") {
+      this._undo = [];
+      this._redo = [];
+    }
+
+    return this._state;
+  }
+
+  jumpToCheckpoint(
+    id: string,
+    opts?: JumpOptions,
+  ): State {
+    const snap =
+      this.checkpoints.get(id);
+
+    if (!snap) return this._state;
+
+    return this.jumpToSnapshot(
+      snap,
+      opts,
+    );
+  }
+
+  listCheckpoints(): string[] {
+    return Array.from(
+      this.checkpoints.keys(),
+    );
+  }
+
+  removeCheckpoint(
+    id: string,
+  ): boolean {
+    return this.checkpoints.delete(id);
+  }
+
+  clearCheckpoints(): void {
+    this.checkpoints.clear();
   }
 }
