@@ -81,11 +81,6 @@ describe("HistoryManager snapshot jump", () => {
       ),
     ).toEqual(["a"]);
 
-    console.log(
-      rollbackState.components
-        .transform["a"].position,
-    );
-
     expect(
       rollbackState.components
         .transform["a"].position,
@@ -194,13 +189,8 @@ describe("HistoryManager snapshot jump", () => {
       { history: "preserve" },
     );
 
-    console.log(historyManager.state);
-    console.log(historyManager.stacks);
+    historyManager.undo();
 
     historyManager.undo();
-    console.log(historyManager.state);
-
-    historyManager.undo();
-    console.log(historyManager.state);
   });
 });
