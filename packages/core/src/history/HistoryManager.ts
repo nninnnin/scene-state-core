@@ -1,5 +1,6 @@
 import { CompositeCommand } from "../command/CompositeCommand";
 import { Command } from "../command/types";
+import { migrateState } from "../migration/apply";
 import {
   State,
   validateState,
@@ -164,10 +165,12 @@ export class HistoryManager {
       history: "replace",
     },
   ) {
-    const next = rollbackTo(snapshot);
-    validateState(next);
-
-    this._state = next;
+    const restored =
+      rollbackTo(snapshot);
+    const migrated =
+      migrateState(restored);
+    this._state =
+      validateState(migrated);
 
     if (opts.history === "replace") {
       this._undo = [];
