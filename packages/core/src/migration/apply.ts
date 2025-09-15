@@ -3,7 +3,12 @@ import {
   State,
   validateState,
 } from "../state";
+import { NoMigrationPathError } from "./errors";
 import { MIGRATIONS } from "./registry";
+
+const migrationMap = new Map(
+  MIGRATIONS.map((m) => [m.from, m]),
+);
 
 export function migrateState(
   input: State,
@@ -15,6 +20,9 @@ export function migrateState(
 
   let progressed = true;
 
+  const hasMigrationPath =
+    migrationMap.get(newState.version);
+
   while (
     newState.version !==
       CURRENT_SCHEMA_VERSION &&
@@ -22,9 +30,20 @@ export function migrateState(
   ) {
     progressed = false;
 
-    for (const m of MIGRATIONS) {
-      if (m.from === newState.version) {
-        newState = m.apply(newState);
+    if (!hasMigrationPath) {
+      throw new NoMigrationPathError(
+        newState.version,
+        CURRENT_SCHEMA_VERSION,
+      );
+    }
+
+    for (const migration of MIGRATIONS) {
+      if (
+        migration.from ===
+        newState.version
+      ) {
+        newState =
+          migration.apply(newState);
         progressed = true;
 
         break;
@@ -32,5 +51,5 @@ export function migrateState(
     }
   }
 
-  return validateState(input);
+  return validateState(newState);
 }

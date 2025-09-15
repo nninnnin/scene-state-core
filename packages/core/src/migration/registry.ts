@@ -1,4 +1,8 @@
+import { m0_to_1 } from "./migrations/0_to_1";
+import { m1_to_2 } from "./migrations/1_to_2";
 import type { Migration } from "./types";
 
-export const MIGRATIONS: Migration[] =
-  [];
+export const MIGRATIONS: Migration[] = [
+  m0_to_1,
+  m1_to_2,
+];

@@ -63,6 +63,7 @@ export const m1_to_2: Migration = {
         scale: sanitizeVector3(
           entityTransform.scale,
           DEFAULT_TRANSFORM.scale,
+          1, // zero replacement
         ),
       };
     }
