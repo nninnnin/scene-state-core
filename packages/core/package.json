@@ -19,6 +19,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "es-toolkit": "^1.39.10"
+    "es-toolkit": "^1.39.10",
+    "zod": "^4.1.8"
   }
 }
