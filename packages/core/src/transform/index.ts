@@ -1,10 +1,10 @@
+import { Transform } from "../command/types";
 import { EntityId } from "../common";
 import { EntityNotFoundError } from "../common/errors";
 import {
   State,
-  validateState,
+  assertInvariants,
 } from "../state";
-import { Transform } from "./types";
 
 export const DEFAULT_TRANSFORM = {
   position: [0, 0, 0] as [
@@ -81,7 +81,7 @@ export function setTransform(
     },
   };
 
-  validateState(next);
+  assertInvariants("onupdate")(next);
 
   return next;
 }

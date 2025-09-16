@@ -17,5 +17,8 @@
     "test": "vitest run",
     "typecheck": "tsc --project tsconfig.json --noEmit",
     "lint": "eslint ."
+  },
+  "dependencies": {
+    "es-toolkit": "^1.39.10"
   }
 }

@@ -62,6 +62,7 @@ describe("Invariants tests", () => {
   it("엔티티 이름 중복 금지", () => {
     const emptyState =
       createEmptyState();
+
     const entityAdded = addEntity(
       emptyState,
       "a",
@@ -71,7 +72,7 @@ describe("Invariants tests", () => {
     expect(() =>
       addEntity(
         entityAdded,
-        "b",
+        "a",
         "Box",
       ),
     ).toThrow(DuplicateEntityError);

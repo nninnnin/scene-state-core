@@ -1,5 +1,5 @@
+import { Transform } from "../command/types";
 import { EntityId } from "../common";
-import { Transform } from "../transform/types";
 
 export type Vec3 = [
   number,

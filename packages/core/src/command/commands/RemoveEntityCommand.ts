@@ -4,8 +4,11 @@ import {
   State,
 } from "../../state";
 import { setTransform } from "../../transform";
-import { Transform } from "../../transform/types";
-import { Command } from "../types";
+
+import {
+  Command,
+  Transform,
+} from "../types";
 
 export class RemoveEntityCommand
   implements Command

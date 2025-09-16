@@ -1,6 +1,8 @@
-import { Transform } from "../../transform/types";
 import { State } from "../../state";
-import { Command } from "../types";
+import {
+  Command,
+  Transform,
+} from "../types";
 import { setTransform } from "../../transform";
 
 export class SetTransformCommand

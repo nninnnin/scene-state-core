@@ -3,7 +3,7 @@ import { Command } from "../command/types";
 import { migrateState } from "../migration/apply";
 import {
   State,
-  validateState,
+  assertInvariants,
 } from "../state";
 import {
   rollbackTo,
@@ -170,7 +170,9 @@ export class HistoryManager {
     const migrated =
       migrateState(restored);
     this._state =
-      validateState(migrated);
+      assertInvariants("onload")(
+        migrated,
+      );
 
     if (opts.history === "replace") {
       this._undo = [];

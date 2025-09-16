@@ -1,6 +1,6 @@
 import {
   State,
-  validateState,
+  assertInvariants,
 } from "../state";
 
 import { Command } from "./types";
@@ -17,7 +17,7 @@ export function applyCommand(
   const next = command.execute(state);
 
   return (options.validate ?? true)
-    ? validateState(next)
+    ? assertInvariants("onupdate")(next)
     : next;
 }
 
@@ -29,6 +29,6 @@ export function undoCommand(
   const next = command.undo(state);
 
   return (options.validate ?? true)
-    ? validateState(next)
+    ? assertInvariants("onupdate")(next)
     : next;
 }

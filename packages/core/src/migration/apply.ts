@@ -1,7 +1,7 @@
 import {
   CURRENT_SCHEMA_VERSION,
   State,
-  validateState,
+  assertInvariants,
 } from "../state";
 import { NoMigrationPathError } from "./errors";
 import { MIGRATIONS } from "./registry";
@@ -51,5 +51,7 @@ export function migrateState(
     }
   }
 
-  return validateState(newState);
+  return assertInvariants("onload")(
+    newState,
+  );
 }

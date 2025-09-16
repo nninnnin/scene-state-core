@@ -5,8 +5,9 @@ import {
 } from "vitest";
 import { HistoryManager } from "./HistoryManager";
 import { SetTransformCommand } from "../command/commands/SetTransformCommand";
-import { Transform } from "../transform/types";
+
 import { EntityNotFoundError } from "../common/errors";
+import { Transform } from "../command/types";
 
 function t(
   x: number,

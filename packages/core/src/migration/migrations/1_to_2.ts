@@ -1,7 +1,8 @@
+import { Transform } from "../../command/types";
 import { EntityId } from "../../common";
 import { Vec3 } from "../../state";
 import { DEFAULT_TRANSFORM } from "../../transform";
-import { Transform } from "../../transform/types";
+
 import { Migration } from "../types";
 
 /**

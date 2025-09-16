@@ -1,6 +1,6 @@
 import { State } from "./types";
 import { EntityId } from "../common";
-import { validateState } from "./invariants";
+import { assertInvariants } from "./invariants";
 import { DuplicateEntityError } from "./errors";
 
 export function addEntity(
@@ -22,7 +22,7 @@ export function addEntity(
     },
   };
 
-  validateState(next);
+  assertInvariants("onupdate")(next);
 
   return next;
 }
@@ -55,7 +55,7 @@ export function removeEntity(
     },
   };
 
-  validateState(next);
+  assertInvariants("onupdate")(next);
 
   return next;
 }

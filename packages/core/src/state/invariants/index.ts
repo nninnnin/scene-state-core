@@ -1,28 +1,62 @@
+import { curry } from "es-toolkit";
+
 import { State } from "../types";
-import { entityInvariants } from "./checkers/entity";
-import { transformInvariants } from "./checkers/transform";
+import { registries } from "./registry";
 
-export type StateInvariant = (
-  state: State,
-) => void;
+export type InvariantMode =
+  | "onupdate"
+  | "onload";
 
-const registry = [
-  ...entityInvariants,
-  ...transformInvariants,
-];
+export const assertInvariants = curry(
+  function (
+    mode: InvariantMode,
+    state: State,
+  ) {
+    const registry = registries[mode];
 
-export function validateState(
-  state: State,
-) {
-  for (const checker of registry) {
-    checker(state);
-  }
+    if (mode === "onload") {
+      for (const checker of registry) {
+        checker.onLoad &&
+          checker.onLoad(state);
+      }
+    }
 
-  return state;
-}
+    if (mode === "onupdate") {
+      // entities iteration
+      for (const [
+        entityId,
+        entity,
+      ] of Object.entries(
+        state.entities,
+      )) {
+        for (const checker of registry) {
+          checker.onEntityIteration &&
+            checker.onEntityIteration(
+              state,
+              entityId,
+              entity,
+            );
+        }
+      }
 
-export function registerInvariant(
-  rule: StateInvariant,
-) {
-  registry.push(rule);
-}
+      // transform iteration
+      for (const [
+        entityId,
+        transform,
+      ] of Object.entries(
+        state.components.transform,
+      )) {
+        for (const checker of registry) {
+          checker.onTransformIteration &&
+            checker.onTransformIteration(
+              state,
+              entityId,
+              transform,
+            );
+        }
+      }
+    }
+
+    return state;
+  },
+);
