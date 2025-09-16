@@ -61,12 +61,14 @@ export const z_v2 = z.object({
       name: z.string().min(1),
     }),
   ),
-  components: z.record(
-    z.string(),
-    z.object({
-      position: z.number(),
-      rotation: z.number(),
-      scale: z.number(),
-    }),
-  ),
+  components: z.object({
+    transform: z.record(
+      z.string(),
+      z.object({
+        position: z.number(),
+        rotation: z.number(),
+        scale: z.number(),
+      }),
+    ),
+  }),
 });
