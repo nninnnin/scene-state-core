@@ -1,5 +1,5 @@
-import { Transform } from "../command/types";
-import { EntityId } from "../common";
+import z from "zod";
+import { z_v2 } from "../migration/schema";
 
 export type Vec3 = [
   number,
@@ -11,16 +11,9 @@ export interface Entity {
   name: string;
 }
 
-export interface State {
-  version: number;
-  entities: Record<EntityId, Entity>;
-  components: {
-    transform: Record<
-      EntityId,
-      Transform
-    >;
-  };
-}
+export type State = z.infer<
+  typeof z_v2
+>;
 
 export const CURRENT_SCHEMA_VERSION = 2;
 
@@ -28,6 +21,8 @@ export function createEmptyState(): State {
   return {
     version: CURRENT_SCHEMA_VERSION,
     entities: {},
-    components: { transform: {} },
+    components: {
+      transform: {},
+    },
   };
 }

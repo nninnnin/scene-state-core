@@ -1,4 +1,4 @@
-import type { State } from "../state";
+import type { State } from "../../state";
 
 export interface Migration {
   from: number;
