@@ -14,7 +14,7 @@ export const z_v0 = z.looseObject({
   entities: z
     .record(z.string(), z.any())
     .optional(),
-  componets: z
+  components: z
     .object({
       transform: z
         .record(z.string(), z.any())

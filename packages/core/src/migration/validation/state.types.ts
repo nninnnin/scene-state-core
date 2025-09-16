@@ -4,7 +4,7 @@ import {
   z_v0,
   z_v1,
   z_v2,
-} from "../schema";
+} from "./schema";
 
 export type StateV0 = z.infer<
   typeof z_v0

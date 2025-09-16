@@ -1,5 +1,5 @@
 import z from "zod";
-import { z_v2 } from "../migration/schema";
+import { z_v2 } from "../migration/validation/schema";
 
 export type Vec3 = [
   number,
