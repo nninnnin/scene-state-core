@@ -1,4 +1,8 @@
 import { Migration } from "../types";
+import {
+  StateV0,
+  StateV1,
+} from "../validation/state.types";
 
 /**
  *
@@ -11,12 +15,13 @@ import { Migration } from "../types";
 export const m0_to_1: Migration = {
   from: 0,
   to: 1,
-  apply(state) {
+  apply(state: StateV0): StateV1 {
     return {
       ...state,
+      entities: state.entities ?? {},
       components: {
         ...state.components,
-        trasnform:
+        transform:
           state.components?.transform ??
           {},
       },

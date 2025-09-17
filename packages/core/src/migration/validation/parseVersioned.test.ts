@@ -5,7 +5,7 @@ import {
 } from "vitest";
 import { parseVersioned } from "./parseVersioned";
 
-describe.only("parseVersioned behavior", () => {
+describe("parseVersioned behavior", () => {
   it("returns explicit version when input.version is set (2)", () => {
     const input = {
       version: 2,

@@ -2,6 +2,10 @@ import { Transform } from "../../command/types";
 import { EntityId } from "../../common";
 import { Vec3 } from "../../state";
 import { DEFAULT_TRANSFORM } from "../../transform";
+import {
+  StateV1,
+  StateV2,
+} from "../validation/state.types";
 
 import { Migration } from "../types";
 
@@ -18,7 +22,7 @@ import { Migration } from "../types";
 export const m1_to_2: Migration = {
   from: 1,
   to: 2,
-  apply(state) {
+  apply(state: StateV1): StateV2 {
     const newState = { ...state };
 
     const entities =
@@ -35,39 +39,34 @@ export const m1_to_2: Migration = {
       (newTransform, entityId) => {
         const hasEntity =
           entities[entityId];
-        if (hasEntity)
-          newTransform[entityId] =
-            transform[entityId];
+
+        if (hasEntity) {
+          const entityTransform =
+            transform[entityId] ??
+            DEFAULT_TRANSFORM;
+
+          // 2) Ensure every transform values
+          newTransform[entityId] = {
+            position: sanitizeVector3(
+              entityTransform.position,
+              DEFAULT_TRANSFORM.position,
+            ),
+            rotation: sanitizeVector3(
+              entityTransform.rotation,
+              DEFAULT_TRANSFORM.rotation,
+            ),
+            scale: sanitizeVector3(
+              entityTransform.scale,
+              DEFAULT_TRANSFORM.scale,
+              1, // zero replacement
+            ),
+          };
+        }
 
         return newTransform;
       },
       {} as Record<EntityId, Transform>,
     );
-
-    // 2) Ensure every transform values
-    for (const entityId of Object.keys(
-      entities,
-    )) {
-      const entityTransform =
-        newTransform[entityId] ??
-        DEFAULT_TRANSFORM;
-
-      newTransform[entityId] = {
-        position: sanitizeVector3(
-          entityTransform.position,
-          DEFAULT_TRANSFORM.position,
-        ),
-        rotation: sanitizeVector3(
-          entityTransform.rotation,
-          DEFAULT_TRANSFORM.rotation,
-        ),
-        scale: sanitizeVector3(
-          entityTransform.scale,
-          DEFAULT_TRANSFORM.scale,
-          1, // zero replacement
-        ),
-      };
-    }
 
     return {
       ...newState,

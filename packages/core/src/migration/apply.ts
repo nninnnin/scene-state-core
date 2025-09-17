@@ -1,57 +1,84 @@
 import {
   CURRENT_SCHEMA_VERSION,
-  State,
   assertInvariants,
 } from "../state";
 import { NoMigrationPathError } from "./errors";
 import { MIGRATIONS } from "./registry";
+import { parseVersioned } from "./validation/parseVersioned";
+
+import {
+  StateV2 as LatestSchema,
+  VersionedInput,
+} from "./validation/state.types";
 
 const migrationMap = new Map(
   MIGRATIONS.map((m) => [m.from, m]),
 );
 
-export function migrateState(
-  input: State,
+function checkOutVersioned(
+  input: unknown,
 ) {
-  let newState = {
-    ...input,
-    version: input.version ?? 0,
-  };
+  const isObject =
+    typeof input === "object" &&
+    input !== null;
 
-  let progressed = true;
+  const rawVersion = isObject
+    ? (input as any).version
+    : undefined;
 
-  const hasMigrationPath =
-    migrationMap.get(newState.version);
-
-  while (
-    newState.version !==
-      CURRENT_SCHEMA_VERSION &&
-    progressed
+  if (
+    typeof rawVersion === "number" &&
+    rawVersion > CURRENT_SCHEMA_VERSION
   ) {
-    progressed = false;
+    throw new NoMigrationPathError(
+      rawVersion,
+      CURRENT_SCHEMA_VERSION,
+    );
+  }
+}
 
-    if (!hasMigrationPath) {
+export function migrateState(
+  input: unknown,
+) {
+  // 1) 스키마 유효성 검사
+  const parsedState: VersionedInput =
+    parseVersioned(input);
+
+  // 버전 유효성 검사
+  checkOutVersioned(input);
+
+  let migratedState:
+    | VersionedInput
+    | LatestSchema = parsedState;
+
+  // 2) 최신 스키마로 마이그레이션
+  while (
+    migratedState.version !==
+    CURRENT_SCHEMA_VERSION
+  ) {
+    const currentMigration =
+      migrationMap.get(
+        migratedState.version,
+      );
+
+    if (!currentMigration) {
       throw new NoMigrationPathError(
-        newState.version,
+        migratedState.version,
         CURRENT_SCHEMA_VERSION,
       );
     }
 
-    for (const migration of MIGRATIONS) {
-      if (
-        migration.from ===
-        newState.version
-      ) {
-        newState =
-          migration.apply(newState);
-        progressed = true;
-
-        break;
-      }
-    }
+    migratedState =
+      currentMigration.apply(
+        migratedState,
+      );
   }
 
-  return assertInvariants("onload")(
-    newState,
-  );
+  // 3) 무결성 검사
+  const invariantCheckedState =
+    assertInvariants("onload")(
+      migratedState as LatestSchema,
+    );
+
+  return invariantCheckedState;
 }

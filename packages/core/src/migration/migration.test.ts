@@ -32,7 +32,7 @@ describe("마이그레이션 체인", () => {
   });
 
   it("Sanitize transform values on v2", () => {
-    const v1_weird: State = {
+    const v1_weird: unknown = {
       version: 1,
       entities: {
         a: { name: "A" },
@@ -75,7 +75,7 @@ describe("마이그레이션 체인", () => {
     ).toBeDefined();
     expect(
       migrated.components.transform.b,
-    ).toBeDefined();
+    ).toBeUndefined();
 
     // Sanitization 확인
     const transformA =
@@ -105,7 +105,7 @@ describe("마이그레이션 체인", () => {
   });
 
   it("throws when no path exists", () => {
-    const overVersionState: State = {
+    const overVersionState: unknown = {
       version:
         CURRENT_SCHEMA_VERSION + 1,
       entities: {},

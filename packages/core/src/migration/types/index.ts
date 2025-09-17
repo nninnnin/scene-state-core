@@ -1,9 +1,14 @@
-import type { State } from "../../state";
+import {
+  VersionedInput,
+  VersionedStates,
+} from "../validation/state.types";
 
 export interface Migration {
   from: number;
   to: number;
-  apply(s: State): State;
+  apply(
+    s: VersionedStates,
+  ): VersionedInput;
 }
 
 export class MigrationError extends Error {
