@@ -65,21 +65,9 @@ export const z_v2 = z.object({
     transform: z.record(
       z.string(),
       z.object({
-        position: [
-          z.number(),
-          z.number(),
-          z.number(),
-        ],
-        rotation: [
-          z.number(),
-          z.number(),
-          z.number(),
-        ],
-        scale: [
-          z.number(),
-          z.number(),
-          z.number(),
-        ],
+        position: zVec3Finite,
+        rotation: zVec3Finite,
+        scale: zVec3Finite,
       }),
     ),
   }),
