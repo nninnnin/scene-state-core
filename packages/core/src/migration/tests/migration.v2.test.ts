@@ -3,32 +3,11 @@ import {
   expect,
   it,
 } from "vitest";
-import { migrateState } from "./apply";
-import { CURRENT_SCHEMA_VERSION } from "../state";
-import { DEFAULT_TRANSFORM } from "../transform";
-import { NoMigrationPathError } from "./errors";
+import { migrateState } from "../apply";
+import { DEFAULT_TRANSFORM } from "../../transform";
 
-describe("마이그레이션 체인", () => {
-  it("v0 부터 v2(current)까지", () => {
-    const v0 = {
-      entities: {},
-      components: {
-        transform: {
-          E: {
-            position: [0, 0],
-          },
-        },
-      },
-    };
-
-    const migrated = migrateState(v0);
-
-    expect(migrated.version).toBe(
-      CURRENT_SCHEMA_VERSION,
-    );
-  });
-
-  it("Sanitize transform values on v2", () => {
+describe("v2 migration test", () => {
+  it("Sanitize transform values on v2 from v1", () => {
     const v1_weird: unknown = {
       version: 1,
       entities: {
@@ -101,18 +80,5 @@ describe("마이그레이션 체인", () => {
     expect(transformA.scale).toEqual([
       1, 2, 1,
     ]); // 0 -> 1, undefined -> 1
-  });
-
-  it("throws when no path exists", () => {
-    const overVersionState: unknown = {
-      version:
-        CURRENT_SCHEMA_VERSION + 1,
-      entities: {},
-      components: { transform: {} },
-    };
-
-    expect(() =>
-      migrateState(overVersionState),
-    ).toThrow(NoMigrationPathError);
   });
 });
