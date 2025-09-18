@@ -52,7 +52,6 @@ export const z_v1 = z.looseObject({
     .default({ transform: {} }),
 });
 
-// current schema
 export const z_v2 = z.object({
   version: z.literal(2),
   entities: z.record(
@@ -70,5 +69,32 @@ export const z_v2 = z.object({
         scale: zVec3Finite,
       }),
     ),
+  }),
+});
+
+// current schema
+export const z_v3 = z.object({
+  version: z.literal(3),
+  entities: z.record(
+    z.string(),
+    z.object({
+      name: z.string().min(1),
+    }),
+  ),
+  components: z.object({
+    transform: z.record(
+      z.string(),
+      z.object({
+        position: zVec3Finite,
+        rotation: zVec3Finite,
+        scale: zVec3Finite,
+      }),
+    ),
+    mesh: z
+      .record(z.string(), z.string())
+      .optional(),
+    material: z
+      .record(z.string(), z.string())
+      .optional(),
   }),
 });

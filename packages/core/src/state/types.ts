@@ -1,5 +1,5 @@
 import z from "zod";
-import { z_v2 } from "../migration/validation/schema";
+import { z_v3 } from "../migration/validation/schema";
 
 export type Vec3 = [
   number,
@@ -12,10 +12,10 @@ export interface Entity {
 }
 
 export type State = z.infer<
-  typeof z_v2
+  typeof z_v3
 >;
 
-export const CURRENT_SCHEMA_VERSION = 2;
+export const CURRENT_SCHEMA_VERSION = 3;
 
 export function createEmptyState(): State {
   return {
