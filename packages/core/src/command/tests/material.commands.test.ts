@@ -50,6 +50,6 @@ describe("", () => {
 
     expect(
       s3.components.material?.e1,
-    ).toBeUndefined();
+    ).toBe("mat:std#1");
   });
 });
