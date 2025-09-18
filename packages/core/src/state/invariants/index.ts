@@ -55,6 +55,40 @@ export const assertInvariants = curry(
             );
         }
       }
+
+      // mesh iteration
+      for (const [
+        entityId,
+        mesh,
+      ] of Object.entries(
+        state.components.mesh ?? {},
+      )) {
+        for (const checker of registry) {
+          checker.onMeshIteration &&
+            checker.onMeshIteration(
+              state,
+              entityId,
+              mesh,
+            );
+        }
+      }
+
+      // material iteration
+      for (const [
+        entityId,
+        material,
+      ] of Object.entries(
+        state.components.material ?? {},
+      )) {
+        for (const checker of registry) {
+          checker.onMaterialIteration &&
+            checker.onMaterialIteration(
+              state,
+              entityId,
+              material,
+            );
+        }
+      }
     }
 
     return state;

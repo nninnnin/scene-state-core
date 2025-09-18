@@ -1,8 +1,8 @@
-import { InvariantChecker } from "..";
-import { State } from "../../../types";
-import { InvalidTransformError } from "../../errors";
-import { Transform } from "../../../../command/types";
-import { EntityId } from "../../../../common";
+import { InvariantChecker } from "../..";
+import { State } from "../../../../types";
+import { InvalidComponentError } from "../../../errors";
+import { Transform } from "../../../../../command/types";
+import { EntityId } from "../../../../../common";
 
 export const noOrphanTransform: InvariantChecker =
   {
@@ -16,7 +16,7 @@ export const noOrphanTransform: InvariantChecker =
         state.entities[entityId];
 
       if (!entity) {
-        throw new InvalidTransformError(
+        throw new InvalidComponentError(
           entityId,
           "존재하지 않는 엔티티에 대한 트랜스폼이 존재합니다",
         );

@@ -17,5 +17,15 @@ export type InvariantChecker = {
     entityId: EntityId,
     transform: Transform,
   ) => void;
+  onMeshIteration?: (
+    state: State,
+    entityId: EntityId,
+    meshRef: string,
+  ) => void;
+  onMaterialIteration?: (
+    state: State,
+    entityId: EntityId,
+    materialRef: string,
+  ) => void;
   onLoad?: (state: State) => void;
 };

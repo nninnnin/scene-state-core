@@ -1,3 +1,4 @@
+import { EntityId } from "../common";
 import type { State } from "../state/types";
 
 export interface Command {
@@ -13,3 +14,16 @@ export interface Transform {
   rotation: [number, number, number]; // radians
   scale: [number, number, number];
 }
+
+export type MeshRef = string;
+export type MaterialRef = string;
+
+export type MeshRefMap = Record<
+  EntityId,
+  MeshRef
+>;
+
+export type MaterialRefMap = Record<
+  EntityId,
+  MaterialRef
+>;

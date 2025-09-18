@@ -13,15 +13,15 @@ export class InvalidEntityError extends InvariantError {
   }
 }
 
-export class InvalidTransformError extends InvariantError {
+export class InvalidComponentError extends InvariantError {
   constructor(
     entityId: string,
     reason: string,
   ) {
     super(
-      `Invalid transform on ${entityId}: ${reason}`,
+      `Invalid component on ${entityId}: ${reason}`,
     );
 
-    this.name = "InvalidTransformError";
+    this.name = "InvalidComponentError";
   }
 }

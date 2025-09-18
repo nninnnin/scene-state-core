@@ -82,8 +82,6 @@ describe("마이그레이션 체인", () => {
     const transformA =
       migrated.components.transform.a;
 
-    console.log(transformA);
-
     expect(transformA.position).toEqual(
       [
         0,
