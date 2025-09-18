@@ -8,6 +8,10 @@ import { SetTransformCommand } from "../command/commands/SetTransformCommand";
 
 import { EntityNotFoundError } from "../common/errors";
 import { Transform } from "../command/types";
+import {
+  CURRENT_SCHEMA_VERSION,
+  State,
+} from "../state";
 
 function t(
   x: number,
@@ -28,8 +32,9 @@ function transform(
   };
 }
 
-function makeInitialState() {
+function makeInitialState(): State {
   return {
+    version: CURRENT_SCHEMA_VERSION,
     entities: {
       a: { name: "A" },
       b: { name: "B" },

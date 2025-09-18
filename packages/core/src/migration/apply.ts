@@ -7,7 +7,7 @@ import { MIGRATIONS } from "./registry";
 import { parseVersioned } from "./validation/parseVersioned";
 
 import {
-  StateV2 as LatestSchema,
+  LatestSchema,
   VersionedInput,
 } from "./validation/state.types";
 
@@ -37,9 +37,19 @@ function checkOutVersioned(
   }
 }
 
+export interface MigrateOptions {
+  // future version 허용 상한 (undefined면 허용 안 함)
+  allowFutureVersionsUpTo?: number;
+}
+
 export function migrateState(
   input: unknown,
+  options?: MigrateOptions,
 ) {
+  const migrateTo =
+    options?.allowFutureVersionsUpTo ??
+    CURRENT_SCHEMA_VERSION;
+
   // 1) 스키마 유효성 검사
   const parsedState: VersionedInput =
     parseVersioned(input);
@@ -53,8 +63,7 @@ export function migrateState(
 
   // 2) 최신 스키마로 마이그레이션
   while (
-    migratedState.version !==
-    CURRENT_SCHEMA_VERSION
+    migratedState.version !== migrateTo
   ) {
     const currentMigration =
       migrationMap.get(
@@ -64,7 +73,7 @@ export function migrateState(
     if (!currentMigration) {
       throw new NoMigrationPathError(
         migratedState.version,
-        CURRENT_SCHEMA_VERSION,
+        migrateTo,
       );
     }
 

@@ -4,10 +4,7 @@ import {
   it,
 } from "vitest";
 import { migrateState } from "./apply";
-import {
-  CURRENT_SCHEMA_VERSION,
-  State,
-} from "../state";
+import { CURRENT_SCHEMA_VERSION } from "../state";
 import { DEFAULT_TRANSFORM } from "../transform";
 import { NoMigrationPathError } from "./errors";
 
@@ -58,8 +55,12 @@ describe("마이그레이션 체인", () => {
       },
     };
 
-    const migrated =
-      migrateState(v1_weird);
+    const migrated = migrateState(
+      v1_weird,
+      {
+        allowFutureVersionsUpTo: 2,
+      },
+    );
 
     // 버전 업그레이드 확인
     expect(migrated.version).toBe(2);

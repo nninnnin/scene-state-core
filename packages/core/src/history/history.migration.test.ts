@@ -9,19 +9,27 @@ import {
   CURRENT_SCHEMA_VERSION,
   State,
 } from "../state";
+import {
+  LatestSchema,
+  StateV0,
+} from "../migration/validation/state.types";
 
 describe("HistoryManager jump + migrate", () => {
   it("오래된 스냅샷을 불러왔을 때에도 현재 버전으로 마이그레이션", () => {
-    const old: State = {
+    const old: StateV0 = {
       version: 0,
       entities: {},
       components: { transform: {} },
     };
 
     const historyManager =
-      new HistoryManager(old);
+      new HistoryManager(
+        old as LatestSchema, // allow for test using snapshot
+      );
 
-    const snapshot = takeSnapshot(old);
+    const snapshot = takeSnapshot(
+      old as LatestSchema, // allow for test using snapshot
+    );
 
     const restored =
       historyManager.jumpToSnapshot(

@@ -4,6 +4,7 @@ import {
   z_v0,
   z_v1,
   z_v2,
+  z_v3,
 } from "./schema";
 import { Entity } from "../../state";
 import { EntityId } from "../../common";
@@ -21,10 +22,17 @@ export type StateV2 = z.infer<
   typeof z_v2
 >;
 
+export type StateV3 = z.infer<
+  typeof z_v3
+>;
+
+export type LatestSchema = StateV3;
+
 export type VersionedStates =
   | StateV0
   | StateV1
-  | StateV2;
+  | StateV2
+  | StateV3;
 
 export type ParsedV0 = {
   version: 0;
@@ -40,4 +48,5 @@ export type ParsedV0 = {
 export type VersionedInput =
   | ParsedV0 // parsed as through `parseVersioned`
   | StateV1
-  | StateV2;
+  | StateV2
+  | StateV3;

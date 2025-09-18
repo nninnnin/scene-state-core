@@ -6,6 +6,7 @@ import {
 
 import {
   createEmptyState,
+  CURRENT_SCHEMA_VERSION,
   State,
 } from "../state";
 import { AddEntityCommand } from "./commands/AddEntityCommand";
@@ -39,6 +40,7 @@ describe("Command system", () => {
 
   it("RemoveEntityCommand removes an entity and undo restores it with transform", () => {
     const initial: State = {
+      version: CURRENT_SCHEMA_VERSION,
       entities: {
         E1: { name: "Sphere" },
       },
@@ -87,6 +89,7 @@ describe("Command system", () => {
 
   it("SetTransformCommand updates transform and undo restores previous", () => {
     const initial: State = {
+      version: CURRENT_SCHEMA_VERSION,
       entities: {
         E1: { name: "Cube" },
       },
