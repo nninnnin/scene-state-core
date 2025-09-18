@@ -4,7 +4,7 @@ import {
   it,
 } from "vitest";
 import { HistoryManager } from "./HistoryManager";
-import { SetTransformCommand } from "../command/commands/SetTransformCommand";
+import { SetTransformCommand } from "../command/commands/transform/SetTransformCommand";
 
 import { EntityNotFoundError } from "../common/errors";
 import { Transform } from "../command/types";

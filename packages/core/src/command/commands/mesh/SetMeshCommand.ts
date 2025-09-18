@@ -1,7 +1,7 @@
-import { EntityId } from "../../common";
-import { EntityNotFoundError } from "../../common/errors";
-import { State } from "../../state";
-import { Command } from "../types";
+import { EntityId } from "../../../common";
+import { EntityNotFoundError } from "../../../common/errors";
+import { State } from "../../../state";
+import { Command } from "../../types";
 
 type MeshRef = "string";
 

@@ -2,13 +2,13 @@ import {
   addEntity,
   removeEntity,
   State,
-} from "../../state";
-import { setTransform } from "../../transform";
+} from "../../../state";
+import { setTransform } from "../../../transform";
 
 import {
   Command,
   Transform,
-} from "../types";
+} from "../../types";
 
 export class RemoveEntityCommand
   implements Command

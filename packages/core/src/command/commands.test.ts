@@ -9,13 +9,13 @@ import {
   CURRENT_SCHEMA_VERSION,
   State,
 } from "../state";
-import { AddEntityCommand } from "./commands/AddEntityCommand";
+import { AddEntityCommand } from "./commands/entity/AddEntityCommand";
 import {
   applyCommand,
   undoCommand,
 } from "./executor";
-import { RemoveEntityCommand } from "./commands/RemoveEntityCommand";
-import { SetTransformCommand } from "./commands/SetTransformCommand";
+import { RemoveEntityCommand } from "./commands/entity/RemoveEntityCommand";
+import { SetTransformCommand } from "./commands/transform/SetTransformCommand";
 import { EntityNotFoundError } from "../common/errors";
 
 describe("Command system", () => {

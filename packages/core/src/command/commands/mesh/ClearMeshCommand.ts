@@ -1,8 +1,8 @@
-import { EntityId } from "../../common";
-import { EntityNotFoundError } from "../../common/errors";
-import { State } from "../../state";
+import { EntityId } from "../../../common";
+import { EntityNotFoundError } from "../../../common/errors";
+import { State } from "../../../state";
 
-import { Command } from "../types";
+import { Command } from "../../types";
 
 export class ClearMeshCommand
   implements Command

@@ -2,8 +2,8 @@ import {
   addEntity,
   removeEntity,
   State,
-} from "../../state";
-import { Command } from "../types";
+} from "../../../state";
+import { Command } from "../../types";
 
 export class AddEntityCommand
   implements Command

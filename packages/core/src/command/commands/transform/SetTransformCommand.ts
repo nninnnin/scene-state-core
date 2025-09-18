@@ -1,9 +1,9 @@
-import { State } from "../../state";
+import { State } from "../../../state";
 import {
   Command,
   Transform,
-} from "../types";
-import { setTransform } from "../../transform";
+} from "../../types";
+import { setTransform } from "../../../transform";
 
 export class SetTransformCommand
   implements Command

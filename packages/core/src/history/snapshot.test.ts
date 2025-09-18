@@ -5,8 +5,8 @@ import {
 } from "vitest";
 import { State } from "../state";
 import { HistoryManager } from "./HistoryManager";
-import { AddEntityCommand } from "../command/commands/AddEntityCommand";
-import { SetTransformCommand } from "../command/commands/SetTransformCommand";
+import { AddEntityCommand } from "../command/commands/entity/AddEntityCommand";
+import { SetTransformCommand } from "../command/commands/transform/SetTransformCommand";
 
 function baseState(): State {
   return {
