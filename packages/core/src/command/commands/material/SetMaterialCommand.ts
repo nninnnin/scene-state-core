@@ -3,7 +3,7 @@ import { EntityNotFoundError } from "../../../common/errors";
 import { State } from "../../../state";
 import { Command } from "../../types";
 
-type MaterialRef = "string";
+type MaterialRef = string;
 
 export class SetMaterialCommand
   implements Command

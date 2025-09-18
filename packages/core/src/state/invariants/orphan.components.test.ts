@@ -74,6 +74,7 @@ describe("컴포넌트 고아 테스트", () => {
         material: { e1: "mat:std#1" },
       },
     };
+
     expect(() =>
       assertInvariants("onload")(state),
     ).not.toThrow();
@@ -94,6 +95,7 @@ describe("컴포넌트 고아 테스트", () => {
         material: { ghost: "mat:x" },
       },
     } as unknown as State;
+
     expect(() =>
       assertInvariants("onload")(state),
     ).toThrow(InvalidComponentError);

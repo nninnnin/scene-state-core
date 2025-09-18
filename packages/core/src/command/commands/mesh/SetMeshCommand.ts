@@ -3,7 +3,7 @@ import { EntityNotFoundError } from "../../../common/errors";
 import { State } from "../../../state";
 import { Command } from "../../types";
 
-type MeshRef = "string";
+type MeshRef = string;
 
 export class SetMeshCommand
   implements Command
