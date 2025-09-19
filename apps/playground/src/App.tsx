@@ -1,7 +1,7 @@
-import { Canvas } from "@react-three/fiber";
+import { Canvas } from '@react-three/fiber';
 
-import { version as coreVersion } from "@ssc/core";
-import { OrbitControls } from "@react-three/drei";
+import { version as coreVersion } from '@ssc/core';
+import { OrbitControls } from '@react-three/drei';
 
 function App() {
   return (
