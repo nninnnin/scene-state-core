@@ -71,6 +71,9 @@ importers:
       '@ssc/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@ssc/react':
+        specifier: workspace:*
+        version: link:../../packages/react
       react:
         specifier: ^19.1.1
         version: 19.1.1
