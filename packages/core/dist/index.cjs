@@ -224,6 +224,106 @@ function removeEntity(state, id) {
   return next;
 }
 
+// src/state/selectors.ts
+function diff(prev, next) {
+  const all = /* @__PURE__ */ new Set();
+  unionInto(all, diffEntities(prev, next));
+  unionInto(all, diffTransform(prev, next));
+  unionInto(all, diffMesh(prev, next));
+  unionInto(all, diffMaterial(prev, next));
+  return all;
+}
+function diffEntities(prev, next) {
+  const out = /* @__PURE__ */ new Set();
+  checkDiff(
+    prev.entities,
+    next.entities,
+    (p, n, id) => p[id].name === n[id].name,
+    out
+  );
+  return out;
+}
+function diffTransform(prev, next) {
+  const out = /* @__PURE__ */ new Set();
+  checkDiff(
+    prev.components.transform,
+    next.components.transform,
+    (p, n, id) => transformEquals(p[id], n[id]),
+    out
+  );
+  return out;
+}
+function diffMesh(prev, next) {
+  const out = /* @__PURE__ */ new Set();
+  checkDiff(
+    prev.components.mesh ?? {},
+    next.components.mesh ?? {},
+    (p, n, id) => p[id] === n[id],
+    out
+  );
+  return out;
+}
+function diffMaterial(prev, next) {
+  const out = /* @__PURE__ */ new Set();
+  checkDiff(
+    prev.components.material ?? {},
+    next.components.material ?? {},
+    (p, n, id) => p[id] === n[id],
+    out
+  );
+  return out;
+}
+function changedEntity(id, changes) {
+  return changes.has(id);
+}
+function changedAny(ids, changes) {
+  for (const id of ids)
+    if (changes.has(id)) return true;
+  return false;
+}
+function collectChanges(prev, next) {
+  const entities = diffEntities(prev, next);
+  const transform = diffTransform(prev, next);
+  const mesh = diffMesh(prev, next);
+  const material = diffMaterial(prev, next);
+  const all = /* @__PURE__ */ new Set();
+  unionInto(all, entities);
+  unionInto(all, transform);
+  unionInto(all, mesh);
+  unionInto(all, material);
+  return {
+    all,
+    entities,
+    transform,
+    mesh,
+    material
+  };
+}
+function checkDiff(prev, next, equalityChecker, changeMemo) {
+  for (const entityId in prev) {
+    if (!(entityId in next)) {
+      changeMemo.add(entityId);
+    } else if (!equalityChecker(prev, next, entityId)) {
+      changeMemo.add(entityId);
+    }
+  }
+  for (const entityId in next) {
+    if (!(entityId in prev)) {
+      changeMemo.add(entityId);
+    }
+  }
+  return changeMemo;
+}
+function vec3Equals(a, b) {
+  return a[0] === b[0] && a[1] === b[1] && a[2] === b[2];
+}
+function transformEquals(a, b) {
+  return vec3Equals(a.position, b.position) && vec3Equals(a.rotation, b.rotation) && vec3Equals(a.scale, b.scale);
+}
+function unionInto(target, src) {
+  for (const v of src) target.add(v);
+}
+
 // src/state/store.ts
 var current;
 function init(initial) {
@@ -232,6 +332,19 @@ function init(initial) {
 function getState() {
   return current;
 }
+var listeners = /* @__PURE__ */ new Set();
+function replace(next) {
+  const prev = current;
+  if (prev === next) return;
+  current = next;
+  const changes = collectChanges(prev, next);
+  for (const l of listeners)
+    l({ prev, next, changes });
+}
+function subscribe(listener) {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+}
 
 // src/index.ts
 var version = () => "core-0.0.0";
@@ -239,10 +352,20 @@ var version = () => "core-0.0.0";
 exports.CURRENT_SCHEMA_VERSION = CURRENT_SCHEMA_VERSION;
 exports.addEntity = addEntity;
 exports.assertInvariants = assertInvariants;
+exports.changedAny = changedAny;
+exports.changedEntity = changedEntity;
+exports.collectChanges = collectChanges;
 exports.createEmptyState = createEmptyState;
+exports.diff = diff;
+exports.diffEntities = diffEntities;
+exports.diffMaterial = diffMaterial;
+exports.diffMesh = diffMesh;
+exports.diffTransform = diffTransform;
 exports.getState = getState;
 exports.init = init;
 exports.removeEntity = removeEntity;
+exports.replace = replace;
+exports.subscribe = subscribe;
 exports.version = version;
 //# sourceMappingURL=index.cjs.map
 //# sourceMappingURL=index.cjs.map

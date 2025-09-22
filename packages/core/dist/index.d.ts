@@ -64,9 +64,32 @@ type EntityId = string;
 declare function addEntity(state: State, id: EntityId, name: string): State;
 declare function removeEntity(state: State, id: EntityId): State;
 
+type ChangeSet = ReadonlySet<EntityId>;
+declare function diff(prev: State, next: State): ChangeSet;
+declare function diffEntities(prev: State, next: State): ReadonlySet<EntityId>;
+declare function diffTransform(prev: State, next: State): ReadonlySet<EntityId>;
+declare function diffMesh(prev: State, next: State): ReadonlySet<EntityId>;
+declare function diffMaterial(prev: State, next: State): ReadonlySet<EntityId>;
+declare function changedEntity(id: EntityId, changes: ReadonlySet<EntityId>): boolean;
+declare function changedAny(ids: Iterable<EntityId>, changes: ReadonlySet<EntityId>): boolean;
+declare function collectChanges(prev: State, next: State): {
+    readonly all: Set<string>;
+    readonly entities: ReadonlySet<string>;
+    readonly transform: ReadonlySet<string>;
+    readonly mesh: ReadonlySet<string>;
+    readonly material: ReadonlySet<string>;
+};
+
 declare function init(initial: State): void;
 declare function getState(): State;
+type Listener = (arg: {
+    prev: State;
+    next: State;
+    changes: ReturnType<typeof collectChanges>;
+}) => void;
+declare function replace(next: State): void;
+declare function subscribe(listener: Listener): () => void;
 
 declare const version: () => string;
 
-export { CURRENT_SCHEMA_VERSION, type Entity, type InvariantMode, type State, type Vec3, addEntity, assertInvariants, createEmptyState, getState, init, removeEntity, version };
+export { CURRENT_SCHEMA_VERSION, type Entity, type InvariantMode, type State, type Vec3, addEntity, assertInvariants, changedAny, changedEntity, collectChanges, createEmptyState, diff, diffEntities, diffMaterial, diffMesh, diffTransform, getState, init, removeEntity, replace, subscribe, version };
