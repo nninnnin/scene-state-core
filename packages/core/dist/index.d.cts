@@ -92,4 +92,4 @@ declare function subscribe(listener: Listener): () => void;
 
 declare const version: () => string;
 
-export { CURRENT_SCHEMA_VERSION, type Entity, type InvariantMode, type State, type Vec3, addEntity, assertInvariants, changedAny, changedEntity, collectChanges, createEmptyState, diff, diffEntities, diffMaterial, diffMesh, diffTransform, getState, init, removeEntity, replace, subscribe, version };
+export { CURRENT_SCHEMA_VERSION, type Entity, type InvariantMode, type Listener, type State, type Vec3, addEntity, assertInvariants, changedAny, changedEntity, collectChanges, createEmptyState, diff, diffEntities, diffMaterial, diffMesh, diffTransform, getState, init, removeEntity, replace, subscribe, version };

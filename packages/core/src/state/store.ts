@@ -11,7 +11,7 @@ export function getState(): State {
   return current;
 }
 
-type Listener = (arg: {
+export type Listener = (arg: {
   prev: State;
   next: State;
   changes: ReturnType<typeof collectChanges>;
