@@ -323,30 +323,41 @@ function unionInto(target, src) {
 }
 
 // src/state/store.ts
-var current;
-function init(initial) {
-  current = initial;
-}
-function getState() {
-  return current;
-}
-var listeners = /* @__PURE__ */ new Set();
-function replace(next) {
-  const prev = current;
-  if (prev === next) return;
-  current = next;
-  const changes = collectChanges(prev, next);
-  for (const l of listeners)
-    l({ prev, next, changes });
-}
-function subscribe(listener) {
-  listeners.add(listener);
-  return () => listeners.delete(listener);
-}
+var Store = class {
+  currentState;
+  updateListeners = /* @__PURE__ */ new Set();
+  constructor(initialState) {
+    this.currentState = initialState;
+  }
+  get state() {
+    return this.currentState;
+  }
+  update(next) {
+    if (this.currentState === next) return;
+    const prev = this.currentState;
+    this.currentState = next;
+    const changes = collectChanges(prev, next);
+    for (const listener of this.updateListeners) {
+      listener({
+        prev,
+        next,
+        changes
+      });
+    }
+  }
+  subscribe(listener) {
+    this.updateListeners.add(listener);
+    const unsubscribe = () => this.updateListeners.delete(listener);
+    return unsubscribe;
+  }
+  destroy() {
+    this.updateListeners.clear();
+  }
+};
 
 // src/index.ts
 var version = () => "core-0.0.0";
 
-export { CURRENT_SCHEMA_VERSION, addEntity, assertInvariants, changedAny, changedEntity, collectChanges, createEmptyState, diff, diffEntities, diffMaterial, diffMesh, diffTransform, getState, init, removeEntity, replace, subscribe, version };
+export { CURRENT_SCHEMA_VERSION, Store, addEntity, assertInvariants, changedAny, changedEntity, collectChanges, createEmptyState, diff, diffEntities, diffMaterial, diffMesh, diffTransform, removeEntity, version };
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map

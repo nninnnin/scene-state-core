@@ -80,16 +80,35 @@ declare function collectChanges(prev: State, next: State): {
     readonly material: ReadonlySet<string>;
 };
 
-declare function init(initial: State): void;
-declare function getState(): State;
+declare class Store {
+    private currentState;
+    private updateListeners;
+    constructor(initialState: State);
+    get state(): {
+        version: 3;
+        entities: Record<string, {
+            name: string;
+        }>;
+        components: {
+            transform: Record<string, {
+                position: [number, number, number];
+                rotation: [number, number, number];
+                scale: [number, number, number];
+            }>;
+            mesh?: Record<string, string> | undefined;
+            material?: Record<string, string> | undefined;
+        };
+    };
+    update(next: State): void;
+    subscribe(listener: Listener): () => boolean;
+    destroy(): void;
+}
 type Listener = (arg: {
     prev: State;
     next: State;
     changes: ReturnType<typeof collectChanges>;
 }) => void;
-declare function replace(next: State): void;
-declare function subscribe(listener: Listener): () => void;
 
 declare const version: () => string;
 
-export { CURRENT_SCHEMA_VERSION, type Entity, type InvariantMode, type Listener, type State, type Vec3, addEntity, assertInvariants, changedAny, changedEntity, collectChanges, createEmptyState, diff, diffEntities, diffMaterial, diffMesh, diffTransform, getState, init, removeEntity, replace, subscribe, version };
+export { CURRENT_SCHEMA_VERSION, type Entity, type InvariantMode, type Listener, type State, Store, type Vec3, addEntity, assertInvariants, changedAny, changedEntity, collectChanges, createEmptyState, diff, diffEntities, diffMaterial, diffMesh, diffTransform, removeEntity, version };

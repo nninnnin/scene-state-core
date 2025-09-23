@@ -1,14 +1,48 @@
 import { State } from "./types";
-import { collectChanges } from "./selectors"; // NEW: 변경 집합 계산
+import { collectChanges } from "./selectors";
 
-let current: State;
+export class Store {
+  private currentState: State;
+  private updateListeners: Set<Listener> = new Set();
 
-export function init(initial: State) {
-  current = initial;
-}
+  constructor(initialState: State) {
+    this.currentState = initialState;
+  }
 
-export function getState(): State {
-  return current;
+  get state() {
+    return this.currentState;
+  }
+
+  update(next: State) {
+    if (this.currentState === next) return;
+
+    const prev = this.currentState;
+    this.currentState = next;
+
+    // call update listeners with changes
+    const changes = collectChanges(prev, next);
+
+    for (const listener of this.updateListeners) {
+      listener({
+        prev,
+        next,
+        changes,
+      });
+    }
+  }
+
+  subscribe(listener: Listener) {
+    this.updateListeners.add(listener);
+
+    const unsubscribe = () =>
+      this.updateListeners.delete(listener);
+
+    return unsubscribe;
+  }
+
+  destroy() {
+    this.updateListeners.clear();
+  }
 }
 
 export type Listener = (arg: {
@@ -17,25 +51,4 @@ export type Listener = (arg: {
   changes: ReturnType<typeof collectChanges>;
 }) => void;
 
-const listeners = new Set<Listener>();
-
-export function replace(next: State) {
-  const prev = current;
-
-  if (prev === next) return;
-
-  current = next;
-
-  const changes = collectChanges(prev, next);
-
-  for (const l of listeners)
-    l({ prev, next, changes });
-}
-
-export function subscribe(
-  listener: Listener,
-): () => void {
-  listeners.add(listener);
-
-  return () => listeners.delete(listener);
-}
+let current: State;
