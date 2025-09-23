@@ -1,28 +1,19 @@
 import * as react_jsx_runtime from 'react/jsx-runtime';
 import { PropsWithChildren } from 'react';
-import { State } from '@ssc/core';
+import { State, Store } from '@ssc/core';
 
 type ProviderProps = PropsWithChildren<{
     initialState: State;
+    injectedStore?: Store;
 }>;
-declare const SceneStateProvider: ({ initialState, children, }: ProviderProps) => react_jsx_runtime.JSX.Element;
+declare const SceneStateProvider: ({ initialState, injectedStore, children, }: ProviderProps) => react_jsx_runtime.JSX.Element;
 
-declare const useSceneState: () => {
-    sceneState: {
-        version: 3;
-        entities: Record<string, {
-            name: string;
-        }>;
-        components: {
-            transform: Record<string, {
-                position: [number, number, number];
-                rotation: [number, number, number];
-                scale: [number, number, number];
-            }>;
-            mesh?: Record<string, string> | undefined;
-            material?: Record<string, string> | undefined;
-        };
-    };
+type EqualsFn<T> = (a: T, b: T) => boolean;
+declare function useSceneState(): {
+    sceneState: State;
+};
+declare function useSceneState<T>(selector: (state: State) => T, equals?: EqualsFn<T>): {
+    sceneState: T;
 };
 
 declare function useExample(): string;
