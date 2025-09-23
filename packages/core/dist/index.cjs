@@ -40,6 +40,12 @@ var InvariantError = class extends Error {
     this.name = new.target.name;
   }
 };
+var EntityNotFoundError = class extends InvariantError {
+  constructor(id) {
+    super(`Entity not found: ${id}`);
+    this.name = "EntityNotFoundError";
+  }
+};
 
 // src/state/invariants/errors.ts
 var InvalidComponentError = class extends InvariantError {
@@ -357,10 +363,42 @@ var Store = class {
   }
 };
 
+// src/transform/index.ts
+var DEFAULT_TRANSFORM = {
+  position: [0, 0, 0],
+  rotation: [0, 0, 0],
+  scale: [1, 1, 1]
+};
+function setTransform(state, id, input) {
+  if (!state.entities[id]) {
+    throw new EntityNotFoundError(id);
+  }
+  const prevTransform = state.components.transform[id] ?? DEFAULT_TRANSFORM;
+  const hasPartialInput = !("position" in input && "rotation" in input && "scale" in input);
+  const nextTransform = hasPartialInput ? {
+    position: input.position ?? prevTransform.position,
+    rotation: input.rotation ?? prevTransform.rotation,
+    scale: input.scale ?? prevTransform.scale
+  } : input;
+  const next = {
+    ...state,
+    components: {
+      ...state.components,
+      transform: {
+        ...state.components.transform,
+        [id]: nextTransform
+      }
+    }
+  };
+  assertInvariants("onupdate")(next);
+  return next;
+}
+
 // src/index.ts
 var version = () => "core-0.0.0";
 
 exports.CURRENT_SCHEMA_VERSION = CURRENT_SCHEMA_VERSION;
+exports.DEFAULT_TRANSFORM = DEFAULT_TRANSFORM;
 exports.Store = Store;
 exports.addEntity = addEntity;
 exports.assertInvariants = assertInvariants;
@@ -374,6 +412,7 @@ exports.diffMaterial = diffMaterial;
 exports.diffMesh = diffMesh;
 exports.diffTransform = diffTransform;
 exports.removeEntity = removeEntity;
+exports.setTransform = setTransform;
 exports.version = version;
 //# sourceMappingURL=index.cjs.map
 //# sourceMappingURL=index.cjs.map

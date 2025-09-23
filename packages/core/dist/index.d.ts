@@ -109,6 +109,20 @@ type Listener = (arg: {
     changes: ReturnType<typeof collectChanges>;
 }) => void;
 
+interface Transform {
+    position: [number, number, number];
+    rotation: [number, number, number];
+    scale: [number, number, number];
+}
+
+declare const DEFAULT_TRANSFORM: {
+    position: [number, number, number];
+    rotation: [number, number, number];
+    scale: [number, number, number];
+};
+declare function setTransform(state: State, id: EntityId, t: Transform): State;
+declare function setTransform(state: State, id: EntityId, patch: Partial<Transform>): State;
+
 declare const version: () => string;
 
-export { CURRENT_SCHEMA_VERSION, type Entity, type InvariantMode, type Listener, type State, Store, type Vec3, addEntity, assertInvariants, changedAny, changedEntity, collectChanges, createEmptyState, diff, diffEntities, diffMaterial, diffMesh, diffTransform, removeEntity, version };
+export { CURRENT_SCHEMA_VERSION, DEFAULT_TRANSFORM, type Entity, type InvariantMode, type Listener, type State, Store, type Vec3, addEntity, assertInvariants, changedAny, changedEntity, collectChanges, createEmptyState, diff, diffEntities, diffMaterial, diffMesh, diffTransform, removeEntity, setTransform, version };
