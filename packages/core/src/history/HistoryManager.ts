@@ -1,10 +1,7 @@
-import { CompositeCommand } from "../command/CompositeCommand";
+import { CompositeCommand } from "../command/commands/CompositeCommand";
 import { Command } from "../command/types";
 import { migrateState } from "../migration/apply";
-import {
-  State,
-  assertInvariants,
-} from "../state";
+import { State, assertInvariants } from "../state";
 import {
   rollbackTo,
   Snapshot,
@@ -16,9 +13,7 @@ type Entry = {
   command: Command;
 };
 
-type CollectCommand = (
-  command: Command,
-) => void;
+type CollectCommand = (command: Command) => void;
 
 type JumpOptions = {
   history?: "replace" | "preserve";
@@ -29,10 +24,8 @@ export class HistoryManager {
   private _redo: Entry[] = [];
   private _state: State;
 
-  private checkpoints: Map<
-    string,
-    Snapshot
-  > = new Map();
+  private checkpoints: Map<string, Snapshot> =
+    new Map();
 
   constructor(initial: State) {
     this._state = initial;
@@ -43,12 +36,8 @@ export class HistoryManager {
   }
 
   get stacks() {
-    const mapEntryLabel = (
-      entries: Entry[],
-    ) =>
-      entries.map(
-        (entry) => entry.label,
-      );
+    const mapEntryLabel = (entries: Entry[]) =>
+      entries.map((entry) => entry.label);
 
     return {
       undo: mapEntryLabel(this._undo),
@@ -58,9 +47,7 @@ export class HistoryManager {
 
   group<T>(
     label: string,
-    collector: (
-      collectCommand: CollectCommand,
-    ) => T,
+    collector: (collectCommand: CollectCommand) => T,
   ): T {
     const bucket: Array<Command> = [];
     const snapshot = this._state;
@@ -72,16 +59,12 @@ export class HistoryManager {
         bucket.push(c),
       );
 
-      if (bucket.length === 0)
-        return result;
+      if (bucket.length === 0) return result;
 
-      const composite =
-        new CompositeCommand(bucket);
-      const executed =
-        composite.execute(snapshot);
+      const composite = new CompositeCommand(bucket);
+      const executed = composite.execute(snapshot);
 
-      if (executed === snapshot)
-        return result; // no-op
+      if (executed === snapshot) return result; // no-op
 
       this._undo.push({
         label,
@@ -98,10 +81,7 @@ export class HistoryManager {
     }
   }
 
-  execute(
-    label: string,
-    command: Command,
-  ): void {
+  execute(label: string, command: Command): void {
     const prev = this._state;
     const next = command.execute(prev);
 
@@ -121,9 +101,7 @@ export class HistoryManager {
 
     if (!entry) return;
 
-    const next = entry.command.undo(
-      this._state,
-    );
+    const next = entry.command.undo(this._state);
 
     this._redo.push(entry);
     this._state = next;
@@ -134,9 +112,7 @@ export class HistoryManager {
 
     if (!entry) return;
 
-    const next = entry.command.execute(
-      this._state,
-    );
+    const next = entry.command.execute(this._state);
 
     this._undo.push(entry);
     this._state = next;
@@ -147,12 +123,8 @@ export class HistoryManager {
     this._redo = [];
   }
 
-  createCheckpoint(
-    id: string,
-  ): Snapshot {
-    const snap = takeSnapshot(
-      this._state,
-    );
+  createCheckpoint(id: string): Snapshot {
+    const snap = takeSnapshot(this._state);
 
     this.checkpoints.set(id, snap);
 
@@ -165,14 +137,9 @@ export class HistoryManager {
       history: "replace",
     },
   ) {
-    const restored =
-      rollbackTo(snapshot);
-    const migrated =
-      migrateState(restored);
-    this._state =
-      assertInvariants("onload")(
-        migrated,
-      );
+    const restored = rollbackTo(snapshot);
+    const migrated = migrateState(restored);
+    this._state = assertInvariants("onload")(migrated);
 
     if (opts.history === "replace") {
       this._undo = [];
@@ -186,26 +153,18 @@ export class HistoryManager {
     id: string,
     opts?: JumpOptions,
   ): State {
-    const snap =
-      this.checkpoints.get(id);
+    const snap = this.checkpoints.get(id);
 
     if (!snap) return this._state;
 
-    return this.jumpToSnapshot(
-      snap,
-      opts,
-    );
+    return this.jumpToSnapshot(snap, opts);
   }
 
   listCheckpoints(): string[] {
-    return Array.from(
-      this.checkpoints.keys(),
-    );
+    return Array.from(this.checkpoints.keys());
   }
 
-  removeCheckpoint(
-    id: string,
-  ): boolean {
+  removeCheckpoint(id: string): boolean {
     return this.checkpoints.delete(id);
   }
 

@@ -1,9 +1,7 @@
-import { State } from "../state";
-import { Command } from "./types";
+import { State } from "../../state";
+import { Command } from "../types";
 
-export class CompositeCommand
-  implements Command
-{
+export class CompositeCommand implements Command {
   readonly type = "composite";
   readonly label: string;
   private readonly commands: Command[];
@@ -33,8 +31,7 @@ export class CompositeCommand
       i >= 0;
       i--
     ) {
-      next =
-        this.commands[i].undo(next);
+      next = this.commands[i].undo(next);
     }
 
     return next;

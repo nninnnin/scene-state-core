@@ -1,9 +1,6 @@
-import {
-  State,
-  assertInvariants,
-} from "../state";
+import { State, assertInvariants } from "../../state";
 
-import { Command } from "./types";
+import { Command } from "../types";
 
 export interface ExecuteOptions {
   validate?: boolean;
