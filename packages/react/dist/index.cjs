@@ -59,6 +59,14 @@ function useSceneState(selector, equals) {
   }, [store, select, isEqual]);
   return { sceneState };
 }
+var useCommand = () => {
+  const { store } = useStore_default();
+  const dispatch = (command) => store.dispatch(command);
+  return {
+    dispatch,
+    group: core.group
+  };
+};
 
 // src/index.ts
 function useExample() {
@@ -66,6 +74,7 @@ function useExample() {
 }
 
 exports.SceneStateProvider = SceneStateProvider;
+exports.useCommand = useCommand;
 exports.useExample = useExample;
 exports.useSceneState = useSceneState;
 //# sourceMappingURL=index.cjs.map

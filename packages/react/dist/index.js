@@ -1,5 +1,5 @@
 import { createContext, useRef, useState, useEffect, useContext } from 'react';
-import { Store } from '@ssc/core';
+import { Store, group } from '@ssc/core';
 import { jsx } from 'react/jsx-runtime';
 
 // src/components/SceneStateProvider.tsx
@@ -57,12 +57,20 @@ function useSceneState(selector, equals) {
   }, [store, select, isEqual]);
   return { sceneState };
 }
+var useCommand = () => {
+  const { store } = useStore_default();
+  const dispatch = (command) => store.dispatch(command);
+  return {
+    dispatch,
+    group
+  };
+};
 
 // src/index.ts
 function useExample() {
   return "react-0.0.0";
 }
 
-export { SceneStateProvider, useExample, useSceneState };
+export { SceneStateProvider, useCommand, useExample, useSceneState };
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map

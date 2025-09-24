@@ -1,6 +1,6 @@
 import * as react_jsx_runtime from 'react/jsx-runtime';
 import { PropsWithChildren } from 'react';
-import { State, Store } from '@ssc/core';
+import { State, Store, Command, group } from '@ssc/core';
 
 type ProviderProps = PropsWithChildren<{
     initialState: State;
@@ -16,6 +16,11 @@ declare function useSceneState<T>(selector: (state: State) => T, equals?: Equals
     sceneState: T;
 };
 
+declare const useCommand: () => {
+    dispatch: (command: Command) => void;
+    group: typeof group;
+};
+
 declare function useExample(): string;
 
-export { SceneStateProvider, useExample, useSceneState };
+export { SceneStateProvider, useCommand, useExample, useSceneState };
