@@ -48,8 +48,6 @@ describe("selectors predicates", () => {
 
     const changeSet = diffEntities(state1, state2);
 
-    console.log(changeSet);
-
     expect(
       changedAny(["x", "a", "y"], changeSet),
     ).toBe(true);
