@@ -353,6 +353,9 @@ var Store = class {
       });
     }
   }
+  dispatch(command) {
+    this.update(command.execute(this.state));
+  }
   subscribe(listener) {
     this.updateListeners.add(listener);
     const unsubscribe = () => this.updateListeners.delete(listener);

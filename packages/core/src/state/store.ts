@@ -1,5 +1,6 @@
 import { State } from "./types";
 import { collectChanges } from "./selectors";
+import { Command } from "../command/types";
 
 export class Store {
   private currentState: State;
@@ -29,6 +30,10 @@ export class Store {
         changes,
       });
     }
+  }
+
+  dispatch(command: Command) {
+    this.update(command.execute(this.state));
   }
 
   subscribe(listener: Listener) {

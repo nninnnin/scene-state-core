@@ -80,6 +80,18 @@ declare function collectChanges(prev: State, next: State): {
     readonly material: ReadonlySet<string>;
 };
 
+interface Command {
+    readonly type: string;
+    readonly description?: string;
+    execute(state: State): State;
+    undo(state: State): State;
+}
+interface Transform {
+    position: [number, number, number];
+    rotation: [number, number, number];
+    scale: [number, number, number];
+}
+
 declare class Store {
     private currentState;
     private updateListeners;
@@ -100,6 +112,7 @@ declare class Store {
         };
     };
     update(next: State): void;
+    dispatch(command: Command): void;
     subscribe(listener: Listener): () => boolean;
     destroy(): void;
 }
@@ -108,12 +121,6 @@ type Listener = (arg: {
     next: State;
     changes: ReturnType<typeof collectChanges>;
 }) => void;
-
-interface Transform {
-    position: [number, number, number];
-    rotation: [number, number, number];
-    scale: [number, number, number];
-}
 
 declare const DEFAULT_TRANSFORM: {
     position: [number, number, number];
