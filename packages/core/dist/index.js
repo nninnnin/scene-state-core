@@ -395,9 +395,52 @@ function setTransform(state, id, input) {
   return next;
 }
 
+// src/command/utils/executor.ts
+function applyCommand(state, command, options = {}) {
+  const next = command.execute(state);
+  return options.validate ?? true ? assertInvariants("onupdate")(next) : next;
+}
+function undoCommand(state, command, options = {}) {
+  const next = command.undo(state);
+  return options.validate ?? true ? assertInvariants("onupdate")(next) : next;
+}
+
+// src/command/commands/CompositeCommand.ts
+var CompositeCommand = class {
+  type = "composite";
+  label;
+  commands;
+  constructor(commands) {
+    this.label = "composite";
+    this.commands = commands;
+  }
+  execute(state) {
+    let next = state;
+    for (const cmd of this.commands) {
+      next = cmd.execute(next);
+    }
+    return next;
+  }
+  undo(state) {
+    let next = state;
+    for (let i = this.commands.length - 1; i >= 0; i--) {
+      next = this.commands[i].undo(next);
+    }
+    return next;
+  }
+  isEmpty() {
+    return this.commands.length === 0;
+  }
+};
+
+// src/command/utils/group.ts
+function group(commands) {
+  return new CompositeCommand(commands);
+}
+
 // src/index.ts
 var version = () => "core-0.0.0";
 
-export { CURRENT_SCHEMA_VERSION, DEFAULT_TRANSFORM, Store, addEntity, assertInvariants, changedAny, changedEntity, collectChanges, createEmptyState, diff, diffEntities, diffMaterial, diffMesh, diffTransform, removeEntity, setTransform, version };
+export { CURRENT_SCHEMA_VERSION, DEFAULT_TRANSFORM, Store, addEntity, applyCommand, assertInvariants, changedAny, changedEntity, collectChanges, createEmptyState, diff, diffEntities, diffMaterial, diffMesh, diffTransform, group, removeEntity, setTransform, undoCommand, version };
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map

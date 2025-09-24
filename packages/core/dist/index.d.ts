@@ -130,6 +130,52 @@ declare const DEFAULT_TRANSFORM: {
 declare function setTransform(state: State, id: EntityId, t: Transform): State;
 declare function setTransform(state: State, id: EntityId, patch: Partial<Transform>): State;
 
+interface ExecuteOptions {
+    validate?: boolean;
+}
+declare function applyCommand(state: State, command: Command, options?: ExecuteOptions): {
+    version: 3;
+    entities: Record<string, {
+        name: string;
+    }>;
+    components: {
+        transform: Record<string, {
+            position: [number, number, number];
+            rotation: [number, number, number];
+            scale: [number, number, number];
+        }>;
+        mesh?: Record<string, string> | undefined;
+        material?: Record<string, string> | undefined;
+    };
+};
+declare function undoCommand(state: State, command: Command, options?: ExecuteOptions): {
+    version: 3;
+    entities: Record<string, {
+        name: string;
+    }>;
+    components: {
+        transform: Record<string, {
+            position: [number, number, number];
+            rotation: [number, number, number];
+            scale: [number, number, number];
+        }>;
+        mesh?: Record<string, string> | undefined;
+        material?: Record<string, string> | undefined;
+    };
+};
+
+declare class CompositeCommand implements Command {
+    readonly type = "composite";
+    readonly label: string;
+    private readonly commands;
+    constructor(commands: Command[]);
+    execute(state: State): State;
+    undo(state: State): State;
+    isEmpty(): boolean;
+}
+
+declare function group(commands: Command[]): CompositeCommand;
+
 declare const version: () => string;
 
-export { CURRENT_SCHEMA_VERSION, type Command, DEFAULT_TRANSFORM, type Entity, type InvariantMode, type Listener, type State, Store, type Vec3, addEntity, assertInvariants, changedAny, changedEntity, collectChanges, createEmptyState, diff, diffEntities, diffMaterial, diffMesh, diffTransform, removeEntity, setTransform, version };
+export { CURRENT_SCHEMA_VERSION, type Command, DEFAULT_TRANSFORM, type Entity, type InvariantMode, type Listener, type State, Store, type Vec3, addEntity, applyCommand, assertInvariants, changedAny, changedEntity, collectChanges, createEmptyState, diff, diffEntities, diffMaterial, diffMesh, diffTransform, group, removeEntity, setTransform, undoCommand, version };
