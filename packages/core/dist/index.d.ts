@@ -132,4 +132,4 @@ declare function setTransform(state: State, id: EntityId, patch: Partial<Transfo
 
 declare const version: () => string;
 
-export { CURRENT_SCHEMA_VERSION, DEFAULT_TRANSFORM, type Entity, type InvariantMode, type Listener, type State, Store, type Vec3, addEntity, assertInvariants, changedAny, changedEntity, collectChanges, createEmptyState, diff, diffEntities, diffMaterial, diffMesh, diffTransform, removeEntity, setTransform, version };
+export { CURRENT_SCHEMA_VERSION, type Command, DEFAULT_TRANSFORM, type Entity, type InvariantMode, type Listener, type State, Store, type Vec3, addEntity, assertInvariants, changedAny, changedEntity, collectChanges, createEmptyState, diff, diffEntities, diffMaterial, diffMesh, diffTransform, removeEntity, setTransform, version };
