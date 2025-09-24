@@ -440,11 +440,289 @@ function group(commands) {
   return new CompositeCommand(commands);
 }
 
+// src/command/commands/entity/AddEntityCommand.ts
+var AddEntityCommand = class {
+  constructor(entityId, name) {
+    this.entityId = entityId;
+    this.name = name;
+    this.description = `Add entity(${entityId})`;
+  }
+  type = "AddEntity";
+  description;
+  execute(state) {
+    return addEntity(
+      state,
+      this.entityId,
+      this.name
+    );
+  }
+  undo(state) {
+    return removeEntity(
+      state,
+      this.entityId
+    );
+  }
+};
+
+// src/command/commands/entity/RemoveEntityCommand.ts
+var RemoveEntityCommand = class {
+  constructor(entityId) {
+    this.entityId = entityId;
+  }
+  type = "RemoveEntity";
+  prevName;
+  prevTransform;
+  execute(state) {
+    const entity = state.entities[this.entityId];
+    this.prevName = entity?.name;
+    this.prevTransform = state.components.transform[this.entityId];
+    return removeEntity(
+      state,
+      this.entityId
+    );
+  }
+  undo(state) {
+    if (this.prevName == null)
+      return state;
+    let next = addEntity(
+      state,
+      this.entityId,
+      this.prevName
+    );
+    if (this.prevTransform) {
+      next = setTransform(
+        next,
+        this.entityId,
+        this.prevTransform
+      );
+    }
+    return next;
+  }
+};
+
+// src/command/commands/material/SetMaterialCommand.ts
+var SetMaterialCommand = class {
+  constructor(id, materialRef, prevMaterial) {
+    this.id = id;
+    this.materialRef = materialRef;
+    this.prevMaterial = prevMaterial;
+  }
+  type = "Setmaterial";
+  execute(state) {
+    if (!state.entities[this.id]) {
+      throw new EntityNotFoundError(
+        this.id
+      );
+    }
+    const prevMaterial = state.components.material?.[this.id];
+    const nextState = {
+      ...state,
+      components: {
+        ...state.components,
+        material: {
+          ...state.components.material ?? {},
+          [this.id]: this.materialRef
+        }
+      }
+    };
+    this.prevMaterial = prevMaterial;
+    return nextState;
+  }
+  undo(state) {
+    const material = {
+      ...state.components.material ?? {}
+    };
+    if (this.prevMaterial) {
+      material[this.id] = this.prevMaterial;
+    } else {
+      delete material[this.id];
+    }
+    return {
+      ...state,
+      components: {
+        ...state.components,
+        material
+      }
+    };
+  }
+};
+
+// src/command/commands/material/ClearMaterialCommand.ts
+var ClearMaterialCommand = class {
+  constructor(id) {
+    this.id = id;
+  }
+  type = "ClearMaterial";
+  prevMaterial;
+  execute(state) {
+    if (!state.entities[this.id])
+      throw new EntityNotFoundError(
+        this.id
+      );
+    const material = {
+      ...state.components.material ?? {}
+    };
+    this.prevMaterial = material[this.id];
+    if (material[this.id] !== void 0) {
+      delete material[this.id];
+    }
+    return {
+      ...state,
+      components: {
+        ...state.components,
+        material
+      }
+    };
+  }
+  undo(state) {
+    const material = {
+      ...state.components.material ?? {}
+    };
+    if (this.prevMaterial) {
+      material[this.id] = this.prevMaterial;
+    }
+    return {
+      ...state,
+      components: {
+        ...state.components,
+        material
+      }
+    };
+  }
+};
+
+// src/command/commands/mesh/SetMeshCommand.ts
+var SetMeshCommand = class {
+  constructor(id, meshRef, prevMesh) {
+    this.id = id;
+    this.meshRef = meshRef;
+    this.prevMesh = prevMesh;
+  }
+  type = "SetMesh";
+  execute(state) {
+    if (!state.entities[this.id]) {
+      throw new EntityNotFoundError(
+        this.id
+      );
+    }
+    const prevMesh = state.components.mesh?.[this.id];
+    const nextState = {
+      ...state,
+      components: {
+        ...state.components,
+        mesh: {
+          ...state.components.mesh ?? {},
+          [this.id]: this.meshRef
+        }
+      }
+    };
+    this.prevMesh = prevMesh;
+    return nextState;
+  }
+  undo(state) {
+    const mesh = {
+      ...state.components.mesh ?? {}
+    };
+    if (this.prevMesh) {
+      mesh[this.id] = this.prevMesh;
+    } else {
+      delete mesh[this.id];
+    }
+    return {
+      ...state,
+      components: {
+        ...state.components,
+        mesh
+      }
+    };
+  }
+};
+
+// src/command/commands/mesh/ClearMeshCommand.ts
+var ClearMeshCommand = class {
+  constructor(id) {
+    this.id = id;
+  }
+  type = "ClearMesh";
+  prevMesh;
+  execute(state) {
+    if (!state.entities[this.id])
+      throw new EntityNotFoundError(
+        this.id
+      );
+    const mesh = {
+      ...state.components.mesh ?? {}
+    };
+    this.prevMesh = mesh[this.id];
+    if (mesh[this.id] !== void 0) {
+      delete mesh[this.id];
+    }
+    return {
+      ...state,
+      components: {
+        ...state.components,
+        mesh
+      }
+    };
+  }
+  undo(state) {
+    const mesh = {
+      ...state.components.mesh ?? {}
+    };
+    if (this.prevMesh) {
+      mesh[this.id] = this.prevMesh;
+    }
+    return {
+      ...state,
+      components: {
+        ...state.components,
+        mesh
+      }
+    };
+  }
+};
+
+// src/command/commands/transform/SetTransformCommand.ts
+var SetTransformCommand = class {
+  constructor(entityId, patch) {
+    this.entityId = entityId;
+    this.patch = patch;
+  }
+  type = "SetTransform";
+  prev;
+  execute(state) {
+    this.prev = state.components.transform[this.entityId];
+    return setTransform(
+      state,
+      this.entityId,
+      this.patch
+    );
+  }
+  undo(state) {
+    if (this.prev) {
+      return setTransform(
+        state,
+        this.entityId,
+        this.prev
+      );
+    }
+    return state;
+  }
+};
+
 // src/index.ts
 var version = () => "core-0.0.0";
 
+exports.AddEntityCommand = AddEntityCommand;
 exports.CURRENT_SCHEMA_VERSION = CURRENT_SCHEMA_VERSION;
+exports.ClearMaterialCommand = ClearMaterialCommand;
+exports.ClearMeshCommand = ClearMeshCommand;
+exports.CompositeCommand = CompositeCommand;
 exports.DEFAULT_TRANSFORM = DEFAULT_TRANSFORM;
+exports.RemoveEntityCommand = RemoveEntityCommand;
+exports.SetMaterialCommand = SetMaterialCommand;
+exports.SetMeshCommand = SetMeshCommand;
+exports.SetTransformCommand = SetTransformCommand;
 exports.Store = Store;
 exports.addEntity = addEntity;
 exports.applyCommand = applyCommand;

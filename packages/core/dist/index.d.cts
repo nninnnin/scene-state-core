@@ -176,6 +176,104 @@ declare class CompositeCommand implements Command {
 
 declare function group(commands: Command[]): CompositeCommand;
 
+declare class AddEntityCommand implements Command {
+    private entityId;
+    private name;
+    readonly type = "AddEntity";
+    readonly description?: string;
+    constructor(entityId: string, name: string);
+    execute(state: State): State;
+    undo(state: State): {
+        version: 3;
+        entities: Record<string, {
+            name: string;
+        }>;
+        components: {
+            transform: Record<string, {
+                position: [number, number, number];
+                rotation: [number, number, number];
+                scale: [number, number, number];
+            }>;
+            mesh?: Record<string, string> | undefined;
+            material?: Record<string, string> | undefined;
+        };
+    };
+}
+
+declare class RemoveEntityCommand implements Command {
+    private entityId;
+    readonly type = "RemoveEntity";
+    private prevName?;
+    private prevTransform?;
+    constructor(entityId: string);
+    execute(state: State): State;
+    undo(state: State): {
+        version: 3;
+        entities: Record<string, {
+            name: string;
+        }>;
+        components: {
+            transform: Record<string, {
+                position: [number, number, number];
+                rotation: [number, number, number];
+                scale: [number, number, number];
+            }>;
+            mesh?: Record<string, string> | undefined;
+            material?: Record<string, string> | undefined;
+        };
+    };
+}
+
+type MaterialRef = string;
+declare class SetMaterialCommand implements Command {
+    private id;
+    private materialRef;
+    private prevMaterial?;
+    readonly type = "Setmaterial";
+    constructor(id: EntityId, materialRef: MaterialRef, prevMaterial?: string | undefined);
+    execute(state: State): State;
+    undo(state: State): State;
+}
+
+declare class ClearMaterialCommand implements Command {
+    private id;
+    type: string;
+    private prevMaterial?;
+    constructor(id: EntityId);
+    execute(state: State): State;
+    undo(state: State): State;
+}
+
+type MeshRef = string;
+declare class SetMeshCommand implements Command {
+    private id;
+    private meshRef;
+    private prevMesh?;
+    readonly type = "SetMesh";
+    constructor(id: EntityId, meshRef: MeshRef, prevMesh?: string | undefined);
+    execute(state: State): State;
+    undo(state: State): State;
+}
+
+declare class ClearMeshCommand implements Command {
+    private id;
+    type: string;
+    private prevMesh?;
+    constructor(id: EntityId);
+    execute(state: State): State;
+    undo(state: State): State;
+}
+
+declare class SetTransformCommand implements Command {
+    private entityId;
+    private patch;
+    readonly type = "SetTransform";
+    private prev?;
+    constructor(entityId: string, patch: Partial<Transform>);
+    execute(state: State): State;
+    undo(state: State): State;
+}
+
 declare const version: () => string;
 
-export { CURRENT_SCHEMA_VERSION, type Command, DEFAULT_TRANSFORM, type Entity, type InvariantMode, type Listener, type State, Store, type Vec3, addEntity, applyCommand, assertInvariants, changedAny, changedEntity, collectChanges, createEmptyState, diff, diffEntities, diffMaterial, diffMesh, diffTransform, group, removeEntity, setTransform, undoCommand, version };
+export { AddEntityCommand, CURRENT_SCHEMA_VERSION, ClearMaterialCommand, ClearMeshCommand, type Command, CompositeCommand, DEFAULT_TRANSFORM, type Entity, type InvariantMode, type Listener, RemoveEntityCommand, SetMaterialCommand, SetMeshCommand, SetTransformCommand, type State, Store, type Vec3, addEntity, applyCommand, assertInvariants, changedAny, changedEntity, collectChanges, createEmptyState, diff, diffEntities, diffMaterial, diffMesh, diffTransform, group, removeEntity, setTransform, undoCommand, version };
