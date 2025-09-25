@@ -6,18 +6,27 @@ var jsxRuntime = require('react/jsx-runtime');
 
 // src/components/SceneStateProvider.tsx
 var StoreContext = react.createContext(null);
+var HistoryContext = react.createContext(null);
 var SceneStateProvider = ({
   initialState,
   injectedStore,
   children
 }) => {
   const storeRef = react.useRef(null);
+  const historyRef = react.useRef(
+    null
+  );
   if (injectedStore) {
     storeRef.current = injectedStore;
   } else if (!storeRef.current) {
     storeRef.current = new core.Store(initialState);
   }
-  return /* @__PURE__ */ jsxRuntime.jsx(StoreContext.Provider, { value: storeRef, children });
+  if (!historyRef.current) {
+    historyRef.current = new core.HistoryManager(
+      storeRef.current
+    );
+  }
+  return /* @__PURE__ */ jsxRuntime.jsx(StoreContext.Provider, { value: storeRef, children: /* @__PURE__ */ jsxRuntime.jsx(HistoryContext.Provider, { value: historyRef, children }) });
 };
 var useStore = () => {
   const storeRef = react.useContext(StoreContext);
@@ -59,9 +68,22 @@ function useSceneState(selector, equals) {
   }, [store, select, isEqual]);
   return { sceneState };
 }
+var useHistory = () => {
+  const historyRef = react.useContext(HistoryContext);
+  if (!historyRef?.current) {
+    throw Error(
+      "You should wrap the component with `SceneStateProvider` to use `useHistory`."
+    );
+  }
+  return {
+    historyManager: historyRef.current
+  };
+};
+
+// src/hooks/useCommand.tsx
 var useCommand = () => {
-  const { store } = useStore_default();
-  const dispatch = (command) => store.dispatch(command);
+  const { historyManager } = useHistory();
+  const dispatch = (command) => historyManager.execute(command);
   return {
     dispatch,
     group: core.group

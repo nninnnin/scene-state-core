@@ -9,7 +9,7 @@ import {
   createEmptyState,
 } from "@ssc/core";
 
-import useCommand from "./useCommand";
+import { useCommand } from "./useCommand";
 import { SceneStateProvider } from "../components/SceneStateProvider";
 import { useSceneState } from "./useSceneState";
 

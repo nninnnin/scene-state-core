@@ -1,12 +1,12 @@
 import { Command, group } from "@ssc/core";
 
-import useStore from "./useStore";
+import { useHistory } from "./useHistory";
 
 export const useCommand = () => {
-  const { store } = useStore();
+  const { historyManager } = useHistory();
 
   const dispatch = (command: Command) =>
-    store.dispatch(command);
+    historyManager.execute(command);
 
   return {
     dispatch,

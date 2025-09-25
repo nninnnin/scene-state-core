@@ -4,7 +4,11 @@ import {
   RefObject,
   useRef,
 } from "react";
-import { State, Store } from "@ssc/core";
+import {
+  HistoryManager,
+  State,
+  Store,
+} from "@ssc/core";
 
 type ProviderProps = PropsWithChildren<{
   initialState: State;
@@ -12,9 +16,13 @@ type ProviderProps = PropsWithChildren<{
 }>;
 
 type StoreRef = RefObject<Store | null>;
+type HistoryRef = RefObject<HistoryManager | null>;
 
 export const StoreContext =
   createContext<StoreRef | null>(null);
+
+export const HistoryContext =
+  createContext<HistoryRef | null>(null);
 
 export const SceneStateProvider = ({
   initialState,
@@ -22,6 +30,9 @@ export const SceneStateProvider = ({
   children,
 }: ProviderProps) => {
   const storeRef = useRef<Store | null>(null);
+  const historyRef = useRef<HistoryManager | null>(
+    null,
+  );
 
   if (injectedStore) {
     storeRef.current = injectedStore;
@@ -30,9 +41,17 @@ export const SceneStateProvider = ({
     storeRef.current = new Store(initialState);
   }
 
+  if (!historyRef.current) {
+    historyRef.current = new HistoryManager(
+      storeRef.current,
+    );
+  }
+
   return (
     <StoreContext.Provider value={storeRef}>
-      {children}
+      <HistoryContext.Provider value={historyRef}>
+        {children}
+      </HistoryContext.Provider>
     </StoreContext.Provider>
   );
 };
