@@ -274,6 +274,50 @@ declare class SetTransformCommand implements Command {
     undo(state: State): State;
 }
 
+type Snapshot = Readonly<State>;
+
+type CollectCommand = (command: Command) => void;
+type JumpOptions = {
+    history?: "replace" | "preserve";
+};
+declare class HistoryManager {
+    private undoStack;
+    private redoStack;
+    private store;
+    private checkpoints;
+    constructor(store: Store);
+    get state(): State;
+    get stacks(): {
+        undoStack: string[];
+        redoStack: string[];
+    };
+    group<T>(label: string, collector: (collectCommand: CollectCommand) => T): T;
+    execute(command: Command): void;
+    undo(): void;
+    redo(): void;
+    clear(): void;
+    createCheckpoint(id: string): Snapshot;
+    jumpToSnapshot(snapshot: Snapshot, opts?: JumpOptions): {
+        version: 3;
+        entities: Record<string, {
+            name: string;
+        }>;
+        components: {
+            transform: Record<string, {
+                position: [number, number, number];
+                rotation: [number, number, number];
+                scale: [number, number, number];
+            }>;
+            mesh?: Record<string, string> | undefined;
+            material?: Record<string, string> | undefined;
+        };
+    };
+    jumpToCheckpoint(id: string, opts?: JumpOptions): State;
+    listCheckpoints(): string[];
+    removeCheckpoint(id: string): boolean;
+    clearCheckpoints(): void;
+}
+
 declare const version: () => string;
 
-export { AddEntityCommand, CURRENT_SCHEMA_VERSION, ClearMaterialCommand, ClearMeshCommand, type Command, CompositeCommand, DEFAULT_TRANSFORM, type Entity, type InvariantMode, type Listener, RemoveEntityCommand, SetMaterialCommand, SetMeshCommand, SetTransformCommand, type State, Store, type Vec3, addEntity, applyCommand, assertInvariants, changedAny, changedEntity, collectChanges, createEmptyState, diff, diffEntities, diffMaterial, diffMesh, diffTransform, group, removeEntity, setTransform, undoCommand, version };
+export { AddEntityCommand, CURRENT_SCHEMA_VERSION, ClearMaterialCommand, ClearMeshCommand, type Command, CompositeCommand, DEFAULT_TRANSFORM, type Entity, HistoryManager, type InvariantMode, type Listener, RemoveEntityCommand, SetMaterialCommand, SetMeshCommand, SetTransformCommand, type State, Store, type Vec3, addEntity, applyCommand, assertInvariants, changedAny, changedEntity, collectChanges, createEmptyState, diff, diffEntities, diffMaterial, diffMesh, diffTransform, group, removeEntity, setTransform, undoCommand, version };

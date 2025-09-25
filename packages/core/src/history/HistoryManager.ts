@@ -1,7 +1,13 @@
+import { isEqual } from "es-toolkit";
+
 import { CompositeCommand } from "../command/commands/CompositeCommand";
 import { Command } from "../command/types";
 import { migrateState } from "../migration/apply";
-import { State, assertInvariants } from "../state";
+import {
+  State,
+  Store,
+  assertInvariants,
+} from "../state";
 import {
   rollbackTo,
   Snapshot,
@@ -20,19 +26,19 @@ type JumpOptions = {
 };
 
 export class HistoryManager {
-  private _undo: Entry[] = [];
-  private _redo: Entry[] = [];
-  private _state: State;
+  private undoStack: Entry[] = [];
+  private redoStack: Entry[] = [];
+  private store: Store;
 
   private checkpoints: Map<string, Snapshot> =
     new Map();
 
-  constructor(initial: State) {
-    this._state = initial;
+  constructor(store: Store) {
+    this.store = store;
   }
 
   get state(): State {
-    return this._state;
+    return this.store.state;
   }
 
   get stacks() {
@@ -40,8 +46,8 @@ export class HistoryManager {
       entries.map((entry) => entry.label);
 
     return {
-      undo: mapEntryLabel(this._undo),
-      redo: mapEntryLabel(this._redo),
+      undoStack: mapEntryLabel(this.undoStack),
+      redoStack: mapEntryLabel(this.redoStack),
     };
   }
 
@@ -50,7 +56,7 @@ export class HistoryManager {
     collector: (collectCommand: CollectCommand) => T,
   ): T {
     const bucket: Array<Command> = [];
-    const snapshot = this._state;
+    const snapshot = this.store.state;
 
     let result: T;
 
@@ -66,69 +72,78 @@ export class HistoryManager {
 
       if (executed === snapshot) return result; // no-op
 
-      this._undo.push({
+      this.undoStack.push({
         label,
         command: composite,
       });
-      this._redo = [];
-      this._state = executed;
+      this.redoStack = [];
+      this.store.update(executed);
 
       return result;
     } catch (error) {
-      this._state = snapshot; // rollback
+      this.store.update(snapshot); // rollback
 
       throw error;
     }
   }
 
-  execute(label: string, command: Command): void {
-    const prev = this._state;
+  execute(command: Command): void {
+    const prev = this.store.state;
     const next = command.execute(prev);
 
-    if (next === prev) {
-      // no-op이면 기록 생략
-      this._redo = [];
+    if (isEqual(prev, next)) {
       return;
     }
 
-    this._undo.push({ label, command });
-    this._redo = []; // reset future
-    this._state = next;
+    this.undoStack.push({
+      label: command.type,
+      command,
+    });
+    this.redoStack = [];
+    this.store.update(next);
   }
 
   undo(): void {
-    const entry = this._undo.pop();
+    const entry = this.undoStack.pop();
 
-    if (!entry) return;
+    if (!entry) {
+      console.log("Has no undo stack");
+      return;
+    }
 
-    const next = entry.command.undo(this._state);
+    const prev = this.store.state;
+    const next = entry.command.undo(prev);
 
-    this._redo.push(entry);
-    this._state = next;
+    this.redoStack.push(entry);
+    this.store.update(next);
   }
 
-  redo() {
-    const entry = this._redo.pop();
+  redo(): void {
+    const entry = this.redoStack.pop();
 
-    if (!entry) return;
+    if (!entry) {
+      console.log("Has no redo stack");
+      return;
+    }
 
-    const next = entry.command.execute(this._state);
+    const prev = this.store.state;
+    const next = entry.command.execute(prev);
 
-    this._undo.push(entry);
-    this._state = next;
+    this.undoStack.push(entry);
+    this.store.update(next);
   }
 
   clear() {
-    this._undo = [];
-    this._redo = [];
+    this.undoStack = [];
+    this.redoStack = [];
   }
 
   createCheckpoint(id: string): Snapshot {
-    const snap = takeSnapshot(this._state);
+    const snapshot = takeSnapshot(this.store.state);
 
-    this.checkpoints.set(id, snap);
+    this.checkpoints.set(id, snapshot);
 
-    return snap;
+    return snapshot;
   }
 
   jumpToSnapshot(
@@ -139,14 +154,17 @@ export class HistoryManager {
   ) {
     const restored = rollbackTo(snapshot);
     const migrated = migrateState(restored);
-    this._state = assertInvariants("onload")(migrated);
+    const validated =
+      assertInvariants("onload")(migrated);
+
+    this.store.update(validated);
 
     if (opts.history === "replace") {
-      this._undo = [];
-      this._redo = [];
+      this.undoStack = [];
+      this.redoStack = [];
     }
 
-    return this._state;
+    return this.store.state;
   }
 
   jumpToCheckpoint(
@@ -155,7 +173,7 @@ export class HistoryManager {
   ): State {
     const snap = this.checkpoints.get(id);
 
-    if (!snap) return this._state;
+    if (!snap) return this.store.state;
 
     return this.jumpToSnapshot(snap, opts);
   }

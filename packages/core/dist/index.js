@@ -1,4 +1,5 @@
-import { curry } from 'es-toolkit';
+import { curry, isEqual } from 'es-toolkit';
+import { z } from 'zod';
 
 // src/state/types.ts
 var CURRENT_SCHEMA_VERSION = 3;
@@ -708,9 +709,420 @@ var SetTransformCommand = class {
   }
 };
 
+// src/migration/errors.ts
+var MigrationError = class extends Error {
+  name = "MigrationError";
+};
+var NoMigrationPathError = class extends MigrationError {
+  from;
+  to;
+  constructor(from, to) {
+    super(
+      `No migration path: ${from} -> ${to}`
+    );
+    this.name = "NoMigrationPathError";
+    this.from = from;
+    this.to = to;
+  }
+};
+
+// src/migration/migrations/0_to_1.ts
+var m0_to_1 = {
+  from: 0,
+  to: 1,
+  apply(state) {
+    return {
+      ...state,
+      entities: state.entities ?? {},
+      components: {
+        ...state.components,
+        transform: state.components?.transform ?? {}
+      },
+      version: 1
+    };
+  }
+};
+
+// src/migration/migrations/1_to_2.ts
+var m1_to_2 = {
+  from: 1,
+  to: 2,
+  apply(state) {
+    const newState = { ...state };
+    const entities = newState.entities ?? {};
+    const transform = newState.components?.transform ?? {};
+    const newTransform = Object.keys(transform).reduce(
+      (newTransform2, entityId) => {
+        const hasEntity = entities[entityId];
+        if (hasEntity) {
+          const entityTransform = transform[entityId] ?? DEFAULT_TRANSFORM;
+          newTransform2[entityId] = {
+            position: sanitizeVector3(
+              entityTransform.position,
+              DEFAULT_TRANSFORM.position
+            ),
+            rotation: sanitizeVector3(
+              entityTransform.rotation,
+              DEFAULT_TRANSFORM.rotation
+            ),
+            scale: sanitizeVector3(
+              entityTransform.scale,
+              DEFAULT_TRANSFORM.scale,
+              1
+              // zero replacement
+            )
+          };
+        }
+        return newTransform2;
+      },
+      {}
+    );
+    return {
+      ...newState,
+      components: {
+        ...newState.components ?? {},
+        transform: newTransform
+      },
+      version: 2
+    };
+  }
+};
+function isFiniteNum(value) {
+  return typeof value === "number" && Number.isFinite(value);
+}
+function sanitizeVector3(input, defaultVector, zeroReplacement) {
+  const vector = Array.isArray(input) ? input : defaultVector;
+  const [inputX, inputY, inputZ] = vector;
+  const [defaultX, defaultY, defaultZ] = defaultVector;
+  const x = isFiniteNum(inputX) ? inputX : defaultX;
+  const y = isFiniteNum(inputY) ? inputY : defaultY;
+  const z3 = isFiniteNum(inputZ) ? inputZ : defaultZ;
+  const sanitized = [x, y, z3];
+  return zeroReplacement ? sanitized.map(
+    (el) => el === 0 ? zeroReplacement : el
+  ) : sanitized;
+}
+
+// src/migration/migrations/2_to_3.ts
+var m2_to_3 = {
+  from: 2,
+  to: 3,
+  apply(prev) {
+    const filterEntityOriented = (map) => {
+      return Object.fromEntries(
+        Object.entries(map).filter(
+          ([entityId, value]) => {
+            const hasEntityOriented = prev.entities[entityId] !== void 0;
+            const hasValidValue = typeof value === "string";
+            return hasEntityOriented && hasValidValue;
+          }
+        )
+      );
+    };
+    const newState = {
+      version: 3,
+      entities: prev.entities,
+      components: {
+        transform: prev.components.transform,
+        mesh: filterEntityOriented(
+          prev.components?.mesh ?? {}
+        ),
+        material: filterEntityOriented(
+          prev.components?.material ?? {}
+        )
+      }
+    };
+    return newState;
+  }
+};
+
+// src/migration/registry.ts
+var MIGRATIONS = [
+  m0_to_1,
+  m1_to_2,
+  m2_to_3
+];
+var zNum = z.number();
+var zVec3Finite = z.tuple([
+  zNum,
+  zNum,
+  zNum
+]);
+var z_v0 = z.looseObject({
+  version: z.number().optional(),
+  entities: z.record(z.string(), z.any()).optional(),
+  components: z.object({
+    transform: z.record(z.string(), z.any()).optional()
+  }).partial().optional()
+});
+var z_v1 = z.looseObject({
+  version: z.literal(1),
+  entities: z.record(
+    z.string(),
+    z.object({
+      name: z.string().min(1)
+    })
+  ),
+  components: z.object({
+    transform: z.record(
+      z.string(),
+      z.object({
+        position: z.any().optional(),
+        rotation: z.any().optional(),
+        scale: z.any().optional()
+      })
+    ).default({})
+  }).default({ transform: {} })
+});
+var z_v2 = z.object({
+  version: z.literal(2),
+  entities: z.record(
+    z.string(),
+    z.object({
+      name: z.string().min(1)
+    })
+  ),
+  components: z.object({
+    transform: z.record(
+      z.string(),
+      z.object({
+        position: zVec3Finite,
+        rotation: zVec3Finite,
+        scale: zVec3Finite
+      })
+    )
+  })
+});
+z.object({
+  version: z.literal(3),
+  entities: z.record(
+    z.string(),
+    z.object({
+      name: z.string().min(1)
+    })
+  ),
+  components: z.object({
+    transform: z.record(
+      z.string(),
+      z.object({
+        position: zVec3Finite,
+        rotation: zVec3Finite,
+        scale: zVec3Finite
+      })
+    ),
+    mesh: z.record(z.string(), z.string()).optional(),
+    material: z.record(z.string(), z.string()).optional()
+  })
+});
+
+// src/migration/validation/parseVersioned.ts
+var preprocessor = (raw) => {
+  if (typeof raw !== "object" || raw === null) {
+    return raw;
+  }
+  const obj = raw;
+  return {
+    ...obj,
+    version: obj.version ?? 0
+  };
+};
+var zAnyVersion = z.preprocess(
+  preprocessor,
+  z.discriminatedUnion("version", [
+    z_v0.extend({
+      version: z.literal(0)
+    }),
+    // `version` 필드가 옵셔널이면 공통된 필드가 존재하지 않으므로 discriminated union일 수 없다.
+    z_v1,
+    z_v2
+  ])
+);
+function parseVersioned(input) {
+  const parsed = zAnyVersion.safeParse(input);
+  if (parsed.success && parsed.data.version === 0) {
+    return {
+      version: 0,
+      entities: parsed.data.entities ?? {},
+      components: {
+        transform: parsed.data.components?.transform ?? {}
+      }
+    };
+  } else if (parsed.error) {
+    return {
+      version: 0,
+      entities: {},
+      components: { transform: {} }
+    };
+  }
+  return parsed.data;
+}
+
+// src/migration/apply.ts
+var migrationMap = new Map(
+  MIGRATIONS.map((m) => [m.from, m])
+);
+function checkOutVersioned(input) {
+  const isObject = typeof input === "object" && input !== null;
+  const rawVersion = isObject ? input.version : void 0;
+  if (typeof rawVersion === "number" && rawVersion > CURRENT_SCHEMA_VERSION) {
+    throw new NoMigrationPathError(
+      rawVersion,
+      CURRENT_SCHEMA_VERSION
+    );
+  }
+}
+function migrateState(input, options) {
+  const migrateTo = CURRENT_SCHEMA_VERSION;
+  const parsedState = parseVersioned(input);
+  checkOutVersioned(input);
+  let migratedState = parsedState;
+  while (migratedState.version !== migrateTo) {
+    const currentMigration = migrationMap.get(
+      migratedState.version
+    );
+    if (!currentMigration) {
+      throw new NoMigrationPathError(
+        migratedState.version,
+        migrateTo
+      );
+    }
+    migratedState = currentMigration.apply(
+      migratedState
+    );
+  }
+  const invariantCheckedState = assertInvariants("onload")(
+    migratedState
+  );
+  return invariantCheckedState;
+}
+
+// src/state/snapshot.ts
+function takeSnapshot(state) {
+  return state;
+}
+function rollbackTo(snapshot) {
+  return snapshot;
+}
+
+// src/history/HistoryManager.ts
+var HistoryManager = class {
+  undoStack = [];
+  redoStack = [];
+  store;
+  checkpoints = /* @__PURE__ */ new Map();
+  constructor(store) {
+    this.store = store;
+  }
+  get state() {
+    return this.store.state;
+  }
+  get stacks() {
+    const mapEntryLabel = (entries) => entries.map((entry) => entry.label);
+    return {
+      undoStack: mapEntryLabel(this.undoStack),
+      redoStack: mapEntryLabel(this.redoStack)
+    };
+  }
+  group(label, collector) {
+    const bucket = [];
+    const snapshot = this.store.state;
+    let result;
+    try {
+      result = collector(
+        (c) => bucket.push(c)
+      );
+      if (bucket.length === 0) return result;
+      const composite = new CompositeCommand(bucket);
+      const executed = composite.execute(snapshot);
+      if (executed === snapshot) return result;
+      this.undoStack.push({
+        label,
+        command: composite
+      });
+      this.redoStack = [];
+      this.store.update(executed);
+      return result;
+    } catch (error) {
+      this.store.update(snapshot);
+      throw error;
+    }
+  }
+  execute(command) {
+    const prev = this.store.state;
+    const next = command.execute(prev);
+    if (isEqual(prev, next)) {
+      return;
+    }
+    this.undoStack.push({
+      label: command.type,
+      command
+    });
+    this.redoStack = [];
+    this.store.update(next);
+  }
+  undo() {
+    const entry = this.undoStack.pop();
+    if (!entry) {
+      console.log("Has no undo stack");
+      return;
+    }
+    const prev = this.store.state;
+    const next = entry.command.undo(prev);
+    this.redoStack.push(entry);
+    this.store.update(next);
+  }
+  redo() {
+    const entry = this.redoStack.pop();
+    if (!entry) {
+      console.log("Has no redo stack");
+      return;
+    }
+    const prev = this.store.state;
+    const next = entry.command.execute(prev);
+    this.undoStack.push(entry);
+    this.store.update(next);
+  }
+  clear() {
+    this.undoStack = [];
+    this.redoStack = [];
+  }
+  createCheckpoint(id) {
+    const snapshot = takeSnapshot(this.store.state);
+    this.checkpoints.set(id, snapshot);
+    return snapshot;
+  }
+  jumpToSnapshot(snapshot, opts = {
+    history: "replace"
+  }) {
+    const restored = rollbackTo(snapshot);
+    const migrated = migrateState(restored);
+    const validated = assertInvariants("onload")(migrated);
+    this.store.update(validated);
+    if (opts.history === "replace") {
+      this.undoStack = [];
+      this.redoStack = [];
+    }
+    return this.store.state;
+  }
+  jumpToCheckpoint(id, opts) {
+    const snap = this.checkpoints.get(id);
+    if (!snap) return this.store.state;
+    return this.jumpToSnapshot(snap, opts);
+  }
+  listCheckpoints() {
+    return Array.from(this.checkpoints.keys());
+  }
+  removeCheckpoint(id) {
+    return this.checkpoints.delete(id);
+  }
+  clearCheckpoints() {
+    this.checkpoints.clear();
+  }
+};
+
 // src/index.ts
 var version = () => "core-0.0.0";
 
-export { AddEntityCommand, CURRENT_SCHEMA_VERSION, ClearMaterialCommand, ClearMeshCommand, CompositeCommand, DEFAULT_TRANSFORM, RemoveEntityCommand, SetMaterialCommand, SetMeshCommand, SetTransformCommand, Store, addEntity, applyCommand, assertInvariants, changedAny, changedEntity, collectChanges, createEmptyState, diff, diffEntities, diffMaterial, diffMesh, diffTransform, group, removeEntity, setTransform, undoCommand, version };
+export { AddEntityCommand, CURRENT_SCHEMA_VERSION, ClearMaterialCommand, ClearMeshCommand, CompositeCommand, DEFAULT_TRANSFORM, HistoryManager, RemoveEntityCommand, SetMaterialCommand, SetMeshCommand, SetTransformCommand, Store, addEntity, applyCommand, assertInvariants, changedAny, changedEntity, collectChanges, createEmptyState, diff, diffEntities, diffMaterial, diffMesh, diffTransform, group, removeEntity, setTransform, undoCommand, version };
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map
