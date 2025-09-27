@@ -1,8 +1,9 @@
 import clsx from 'clsx';
 import { useCommand, useSceneState } from '@ssc/react';
+import { AddEntityCommand, version as coreVersion } from '@ssc/core';
+import * as THREE from 'three';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
-import { AddEntityCommand, version as coreVersion } from '@ssc/core';
 
 function App() {
   const { sceneState } = useSceneState();
@@ -12,8 +13,26 @@ function App() {
   const { dispatch } = useCommand();
 
   const handleAddEntityClick = () => {
-    dispatch(new AddEntityCommand('my-id', 'Justin'));
+    const random = Math.random() * 100;
+
+    const entityId = 'my-id' + random;
+    const entityName = 'Justin' + random;
+
+    dispatch(new AddEntityCommand(entityId, entityName));
   };
+
+  const meshes = Object.entries(sceneState.entities).map(
+    ([entityId, _], index) => {
+      const position = new THREE.Vector3(index * 1.5, 0, 0);
+
+      return (
+        <mesh key={`entity-${entityId}`} position={position}>
+          <boxGeometry />
+          <meshStandardMaterial />
+        </mesh>
+      );
+    },
+  );
 
   return (
     <div className="flex flex-col h-[100dvh]">
@@ -22,10 +41,7 @@ function App() {
       </div>
 
       <Canvas className="flex-1">
-        <mesh>
-          <boxGeometry />
-          <meshStandardMaterial />
-        </mesh>
+        {meshes}
 
         <ambientLight />
         <OrbitControls />
