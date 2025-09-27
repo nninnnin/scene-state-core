@@ -320,4 +320,4 @@ declare class HistoryManager {
 
 declare const version: () => string;
 
-export { AddEntityCommand, CURRENT_SCHEMA_VERSION, ClearMaterialCommand, ClearMeshCommand, type Command, CompositeCommand, DEFAULT_TRANSFORM, type Entity, HistoryManager, type InvariantMode, type Listener, RemoveEntityCommand, SetMaterialCommand, SetMeshCommand, SetTransformCommand, type State, Store, type Vec3, addEntity, applyCommand, assertInvariants, changedAny, changedEntity, collectChanges, createEmptyState, diff, diffEntities, diffMaterial, diffMesh, diffTransform, group, removeEntity, setTransform, undoCommand, version };
+export { AddEntityCommand, CURRENT_SCHEMA_VERSION, ClearMaterialCommand, ClearMeshCommand, type Command, CompositeCommand, DEFAULT_TRANSFORM, type Entity, HistoryManager, type InvariantMode, type Listener, RemoveEntityCommand, SetMaterialCommand, SetMeshCommand, SetTransformCommand, type State, Store, type Transform, type Vec3, addEntity, applyCommand, assertInvariants, changedAny, changedEntity, collectChanges, createEmptyState, diff, diffEntities, diffMaterial, diffMesh, diffTransform, group, removeEntity, setTransform, undoCommand, version };
