@@ -1,9 +1,12 @@
-import type { Transform } from "@ssc/core";
+import {
+  DEFAULT_TRANSFORM,
+  type Transform,
+} from "@ssc/core";
 
 const EntityMesh = ({
-  transform,
+  transform = DEFAULT_TRANSFORM,
 }: {
-  transform: Transform;
+  transform?: Transform;
 }) => {
   return (
     <mesh
@@ -12,7 +15,7 @@ const EntityMesh = ({
       scale={transform.scale}
     >
       <boxGeometry />
-      <meshStandardMaterial />
+      <meshStandardMaterial color="orange" />
     </mesh>
   );
 };

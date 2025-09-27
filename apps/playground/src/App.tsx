@@ -50,7 +50,7 @@ function App() {
       <Canvas className="flex-1">
         {meshes}
 
-        <ambientLight />
+        <ambientLight intensity={5} />
         <OrbitControls />
       </Canvas>
 
