@@ -1,36 +1,32 @@
 import z$1, { z } from 'zod';
 
-declare const z_v3: z.ZodObject<{
-    version: z.ZodLiteral<3>;
+declare const z_v4: z.ZodObject<{
+    version: z.ZodLiteral<4>;
     entities: z.ZodRecord<z.ZodString, z.ZodObject<{
         name: z.ZodString;
     }, z.core.$strip>>;
     components: z.ZodObject<{
-        transform: z.ZodRecord<z.ZodString, z.ZodObject<{
+        transform: z.ZodRecord<z.ZodString, z.ZodOptional<z.ZodObject<{
             position: z.ZodTuple<[z.ZodNumber, z.ZodNumber, z.ZodNumber], null>;
             rotation: z.ZodTuple<[z.ZodNumber, z.ZodNumber, z.ZodNumber], null>;
             scale: z.ZodTuple<[z.ZodNumber, z.ZodNumber, z.ZodNumber], null>;
-        }, z.core.$strip>>;
+        }, z.core.$strip>>>;
         mesh: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodString>>;
         material: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodString>>;
     }, z.core.$strip>;
 }, z.core.$strip>;
 
-type Vec3 = [
-    number,
-    number,
-    number
-];
+type Vec3 = [number, number, number];
 interface Entity {
     name: string;
 }
-type State = z$1.infer<typeof z_v3>;
-declare const CURRENT_SCHEMA_VERSION = 3;
+type State = z$1.infer<typeof z_v4>;
+declare const CURRENT_SCHEMA_VERSION = 4;
 declare function createEmptyState(): State;
 
 type InvariantMode = "onupdate" | "onload";
 declare const assertInvariants: (p1: InvariantMode) => (p2: {
-    version: 3;
+    version: 4;
     entities: Record<string, {
         name: string;
     }>;
@@ -39,12 +35,12 @@ declare const assertInvariants: (p1: InvariantMode) => (p2: {
             position: [number, number, number];
             rotation: [number, number, number];
             scale: [number, number, number];
-        }>;
+        } | undefined>;
         mesh?: Record<string, string> | undefined;
         material?: Record<string, string> | undefined;
     };
 }) => {
-    version: 3;
+    version: 4;
     entities: Record<string, {
         name: string;
     }>;
@@ -53,7 +49,7 @@ declare const assertInvariants: (p1: InvariantMode) => (p2: {
             position: [number, number, number];
             rotation: [number, number, number];
             scale: [number, number, number];
-        }>;
+        } | undefined>;
         mesh?: Record<string, string> | undefined;
         material?: Record<string, string> | undefined;
     };
@@ -97,7 +93,7 @@ declare class Store {
     private updateListeners;
     constructor(initialState: State);
     get state(): {
-        version: 3;
+        version: 4;
         entities: Record<string, {
             name: string;
         }>;
@@ -106,7 +102,7 @@ declare class Store {
                 position: [number, number, number];
                 rotation: [number, number, number];
                 scale: [number, number, number];
-            }>;
+            } | undefined>;
             mesh?: Record<string, string> | undefined;
             material?: Record<string, string> | undefined;
         };
@@ -134,7 +130,7 @@ interface ExecuteOptions {
     validate?: boolean;
 }
 declare function applyCommand(state: State, command: Command, options?: ExecuteOptions): {
-    version: 3;
+    version: 4;
     entities: Record<string, {
         name: string;
     }>;
@@ -143,13 +139,13 @@ declare function applyCommand(state: State, command: Command, options?: ExecuteO
             position: [number, number, number];
             rotation: [number, number, number];
             scale: [number, number, number];
-        }>;
+        } | undefined>;
         mesh?: Record<string, string> | undefined;
         material?: Record<string, string> | undefined;
     };
 };
 declare function undoCommand(state: State, command: Command, options?: ExecuteOptions): {
-    version: 3;
+    version: 4;
     entities: Record<string, {
         name: string;
     }>;
@@ -158,7 +154,7 @@ declare function undoCommand(state: State, command: Command, options?: ExecuteOp
             position: [number, number, number];
             rotation: [number, number, number];
             scale: [number, number, number];
-        }>;
+        } | undefined>;
         mesh?: Record<string, string> | undefined;
         material?: Record<string, string> | undefined;
     };
@@ -184,7 +180,7 @@ declare class AddEntityCommand implements Command {
     constructor(entityId: string, name: string);
     execute(state: State): State;
     undo(state: State): {
-        version: 3;
+        version: 4;
         entities: Record<string, {
             name: string;
         }>;
@@ -193,7 +189,7 @@ declare class AddEntityCommand implements Command {
                 position: [number, number, number];
                 rotation: [number, number, number];
                 scale: [number, number, number];
-            }>;
+            } | undefined>;
             mesh?: Record<string, string> | undefined;
             material?: Record<string, string> | undefined;
         };
@@ -208,7 +204,7 @@ declare class RemoveEntityCommand implements Command {
     constructor(entityId: string);
     execute(state: State): State;
     undo(state: State): {
-        version: 3;
+        version: 4;
         entities: Record<string, {
             name: string;
         }>;
@@ -217,7 +213,7 @@ declare class RemoveEntityCommand implements Command {
                 position: [number, number, number];
                 rotation: [number, number, number];
                 scale: [number, number, number];
-            }>;
+            } | undefined>;
             mesh?: Record<string, string> | undefined;
             material?: Record<string, string> | undefined;
         };
@@ -298,7 +294,7 @@ declare class HistoryManager {
     clear(): void;
     createCheckpoint(id: string): Snapshot;
     jumpToSnapshot(snapshot: Snapshot, opts?: JumpOptions): {
-        version: 3;
+        version: 4;
         entities: Record<string, {
             name: string;
         }>;
@@ -307,7 +303,7 @@ declare class HistoryManager {
                 position: [number, number, number];
                 rotation: [number, number, number];
                 scale: [number, number, number];
-            }>;
+            } | undefined>;
             mesh?: Record<string, string> | undefined;
             material?: Record<string, string> | undefined;
         };

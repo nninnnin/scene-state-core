@@ -154,6 +154,7 @@ export class HistoryManager {
   ) {
     const restored = rollbackTo(snapshot);
     const migrated = migrateState(restored);
+
     const validated =
       assertInvariants("onload")(migrated);
 

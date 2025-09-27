@@ -1,11 +1,6 @@
-import {
-  describe,
-  expect,
-  it,
-} from "vitest";
+import { describe, expect, it } from "vitest";
 import { migrateState } from "../apply";
 import { CURRENT_SCHEMA_VERSION } from "../../state";
-import { DEFAULT_TRANSFORM } from "../../transform";
 import { NoMigrationPathError } from "../errors";
 
 describe("마이그레이션 체인", () => {
@@ -30,8 +25,7 @@ describe("마이그레이션 체인", () => {
 
   it("throws when no path exists", () => {
     const overVersionState: unknown = {
-      version:
-        CURRENT_SCHEMA_VERSION + 1,
+      version: CURRENT_SCHEMA_VERSION + 1,
       entities: {},
       components: { transform: {} },
     };

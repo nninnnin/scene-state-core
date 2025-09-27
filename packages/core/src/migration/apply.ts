@@ -15,12 +15,9 @@ const migrationMap = new Map(
   MIGRATIONS.map((m) => [m.from, m]),
 );
 
-function checkOutVersioned(
-  input: unknown,
-) {
+function checkOutVersioned(input: unknown) {
   const isObject =
-    typeof input === "object" &&
-    input !== null;
+    typeof input === "object" && input !== null;
 
   const rawVersion = isObject
     ? (input as any).version
@@ -57,18 +54,14 @@ export function migrateState(
   // 버전 유효성 검사
   checkOutVersioned(input);
 
-  let migratedState:
-    | VersionedInput
-    | LatestSchema = parsedState;
+  let migratedState: VersionedInput | LatestSchema =
+    parsedState;
 
   // 2) 최신 스키마로 마이그레이션
-  while (
-    migratedState.version !== migrateTo
-  ) {
-    const currentMigration =
-      migrationMap.get(
-        migratedState.version,
-      );
+  while (migratedState.version !== migrateTo) {
+    const currentMigration = migrationMap.get(
+      migratedState.version,
+    );
 
     if (!currentMigration) {
       throw new NoMigrationPathError(
@@ -78,16 +71,13 @@ export function migrateState(
     }
 
     migratedState =
-      currentMigration.apply(
-        migratedState,
-      );
+      currentMigration.apply(migratedState);
   }
 
   // 3) 무결성 검사
-  const invariantCheckedState =
-    assertInvariants("onload")(
-      migratedState as LatestSchema,
-    );
+  const invariantCheckedState = assertInvariants(
+    "onload",
+  )(migratedState as LatestSchema);
 
   return invariantCheckedState;
 }

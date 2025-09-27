@@ -2,18 +2,12 @@ import { z } from "zod";
 
 const zNum = z.number();
 
-export const zVec3Finite = z.tuple([
-  zNum,
-  zNum,
-  zNum,
-]);
+export const zVec3Finite = z.tuple([zNum, zNum, zNum]);
 
 // previous versions of state schema
 export const z_v0 = z.looseObject({
   version: z.number().optional(),
-  entities: z
-    .record(z.string(), z.any())
-    .optional(),
+  entities: z.record(z.string(), z.any()).optional(),
   components: z
     .object({
       transform: z
@@ -38,12 +32,8 @@ export const z_v1 = z.looseObject({
         .record(
           z.string(),
           z.object({
-            position: z
-              .any()
-              .optional(),
-            rotation: z
-              .any()
-              .optional(),
+            position: z.any().optional(),
+            rotation: z.any().optional(),
             scale: z.any().optional(),
           }),
         )
@@ -72,7 +62,6 @@ export const z_v2 = z.object({
   }),
 });
 
-// current schema
 export const z_v3 = z.object({
   version: z.literal(3),
   entities: z.record(
@@ -90,9 +79,34 @@ export const z_v3 = z.object({
         scale: zVec3Finite,
       }),
     ),
-    mesh: z
+    mesh: z.record(z.string(), z.string()).optional(),
+    material: z
       .record(z.string(), z.string())
       .optional(),
+  }),
+});
+
+// current schema
+export const z_v4 = z.object({
+  version: z.literal(4),
+  entities: z.record(
+    z.string(),
+    z.object({
+      name: z.string().min(1),
+    }),
+  ),
+  components: z.object({
+    transform: z.record(
+      z.string(),
+      z
+        .object({
+          position: zVec3Finite,
+          rotation: zVec3Finite,
+          scale: zVec3Finite,
+        })
+        .optional(),
+    ),
+    mesh: z.record(z.string(), z.string()).optional(),
     material: z
       .record(z.string(), z.string())
       .optional(),

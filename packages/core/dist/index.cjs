@@ -4,7 +4,7 @@ var esToolkit = require('es-toolkit');
 var zod = require('zod');
 
 // src/state/types.ts
-var CURRENT_SCHEMA_VERSION = 3;
+var CURRENT_SCHEMA_VERSION = 4;
 function createEmptyState() {
   return {
     version: CURRENT_SCHEMA_VERSION,
@@ -117,68 +117,50 @@ var registries = {
 };
 
 // src/state/invariants/index.ts
-var assertInvariants = esToolkit.curry(
-  function(mode, state) {
-    const registry = registries[mode];
-    for (const [
-      entityId,
-      entity
-    ] of Object.entries(
-      state.entities
-    )) {
-      for (const checker of registry) {
-        checker.onEntityIteration && checker.onEntityIteration(
-          state,
-          entityId,
-          entity
-        );
-      }
+var assertInvariants = esToolkit.curry(function(mode, state) {
+  const registry = registries[mode];
+  for (const [entityId, entity] of Object.entries(
+    state.entities
+  )) {
+    for (const checker of registry) {
+      checker.onEntityIteration && checker.onEntityIteration(
+        state,
+        entityId,
+        entity
+      );
     }
-    for (const [
-      entityId,
-      transform
-    ] of Object.entries(
-      state.components.transform
-    )) {
-      for (const checker of registry) {
-        checker.onTransformIteration && checker.onTransformIteration(
-          state,
-          entityId,
-          transform
-        );
-      }
-    }
-    for (const [
-      entityId,
-      mesh
-    ] of Object.entries(
-      state.components.mesh ?? {}
-    )) {
-      for (const checker of registry) {
-        checker.onMeshIteration && checker.onMeshIteration(
-          state,
-          entityId,
-          mesh
-        );
-      }
-    }
-    for (const [
-      entityId,
-      material
-    ] of Object.entries(
-      state.components.material ?? {}
-    )) {
-      for (const checker of registry) {
-        checker.onMaterialIteration && checker.onMaterialIteration(
-          state,
-          entityId,
-          material
-        );
-      }
-    }
-    return state;
   }
-);
+  for (const [entityId, transform] of Object.entries(
+    state.components.transform
+  )) {
+    for (const checker of registry) {
+      checker.onTransformIteration && checker.onTransformIteration(
+        state,
+        entityId,
+        transform
+      );
+    }
+  }
+  for (const [entityId, mesh] of Object.entries(
+    state.components.mesh ?? {}
+  )) {
+    for (const checker of registry) {
+      checker.onMeshIteration && checker.onMeshIteration(state, entityId, mesh);
+    }
+  }
+  for (const [entityId, material] of Object.entries(
+    state.components.material ?? {}
+  )) {
+    for (const checker of registry) {
+      checker.onMaterialIteration && checker.onMaterialIteration(
+        state,
+        entityId,
+        material
+      );
+    }
+  }
+  return state;
+});
 
 // src/state/errors.ts
 var DuplicateEntityError = class extends InvariantError {
@@ -253,8 +235,8 @@ function diffEntities(prev, next) {
 function diffTransform(prev, next) {
   const out = /* @__PURE__ */ new Set();
   checkDiff(
-    prev.components.transform,
-    next.components.transform,
+    prev.components.transform ?? {},
+    next.components.transform ?? {},
     (p, n, id) => transformEquals(p[id], n[id]),
     out
   );
@@ -845,11 +827,7 @@ var MIGRATIONS = [
   m2_to_3
 ];
 var zNum = zod.z.number();
-var zVec3Finite = zod.z.tuple([
-  zNum,
-  zNum,
-  zNum
-]);
+var zVec3Finite = zod.z.tuple([zNum, zNum, zNum]);
 var z_v0 = zod.z.looseObject({
   version: zod.z.number().optional(),
   entities: zod.z.record(zod.z.string(), zod.z.any()).optional(),
@@ -911,6 +889,27 @@ zod.z.object({
         rotation: zVec3Finite,
         scale: zVec3Finite
       })
+    ),
+    mesh: zod.z.record(zod.z.string(), zod.z.string()).optional(),
+    material: zod.z.record(zod.z.string(), zod.z.string()).optional()
+  })
+});
+zod.z.object({
+  version: zod.z.literal(CURRENT_SCHEMA_VERSION),
+  entities: zod.z.record(
+    zod.z.string(),
+    zod.z.object({
+      name: zod.z.string().min(1)
+    })
+  ),
+  components: zod.z.object({
+    transform: zod.z.record(
+      zod.z.string(),
+      zod.z.object({
+        position: zVec3Finite,
+        rotation: zVec3Finite,
+        scale: zVec3Finite
+      }).optional()
     ),
     mesh: zod.z.record(zod.z.string(), zod.z.string()).optional(),
     material: zod.z.record(zod.z.string(), zod.z.string()).optional()

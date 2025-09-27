@@ -41,9 +41,16 @@ export function diffTransform(
   next: State,
 ): ReadonlySet<EntityId> {
   const out = new Set<EntityId>();
+
   checkDiff<Transform>(
-    prev.components.transform,
-    next.components.transform,
+    (prev.components.transform ?? {}) as Record<
+      EntityId,
+      Transform
+    >,
+    (next.components.transform ?? {}) as Record<
+      EntityId,
+      Transform
+    >,
     (p, n, id) => transformEquals(p[id], n[id]),
     out,
   );

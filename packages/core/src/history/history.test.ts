@@ -60,12 +60,16 @@ describe("HistoryManager", () => {
     const history = new HistoryManager(store);
 
     history.group("그룹 이동", (collectCommand) => {
-      const a =
-        history.state.components.transform["a"]
-          .position;
-      const b =
-        history.state.components.transform["b"]
-          .position;
+      const a = (
+        history.state.components.transform[
+          "a"
+        ] as Transform
+      ).position;
+      const b = (
+        history.state.components.transform[
+          "b"
+        ] as Transform
+      ).position;
 
       collectCommand(
         new SetTransformCommand("a", {
@@ -86,10 +90,12 @@ describe("HistoryManager", () => {
     ]);
     const after = history.state;
     expect(
-      after.components.transform["a"].position,
+      (after.components.transform["a"] as Transform)
+        .position,
     ).toEqual([10, 0, 0]);
     expect(
-      after.components.transform["b"].position,
+      (after.components.transform["b"] as Transform)
+        .position,
     ).toEqual([15, 0, 0]);
 
     // 10씩 이동한 것 철회
@@ -101,19 +107,35 @@ describe("HistoryManager", () => {
       "그룹 이동",
     ]);
     expect(
-      history.state.components.transform["a"].position,
+      (
+        history.state.components.transform[
+          "a"
+        ] as Transform
+      ).position,
     ).toEqual([0, 0, 0]);
     expect(
-      history.state.components.transform["b"].position,
+      (
+        history.state.components.transform[
+          "b"
+        ] as Transform
+      ).position,
     ).toEqual([5, 0, 0]);
 
     // 다시 적용
     history.redo();
     expect(
-      history.state.components.transform["a"].position,
+      (
+        history.state.components.transform[
+          "a"
+        ] as Transform
+      ).position,
     ).toEqual([10, 0, 0]);
     expect(
-      history.state.components.transform["b"].position,
+      (
+        history.state.components.transform[
+          "b"
+        ] as Transform
+      ).position,
     ).toEqual([15, 0, 0]);
   });
 
@@ -126,9 +148,11 @@ describe("HistoryManager", () => {
     expect(() => {
       history.group("실패 그룹", (collect) => {
         // 존재하는 a는 성공 커맨드
-        const a =
-          history.state.components.transform["a"]
-            .position;
+        const a = (
+          history.state.components.transform[
+            "a"
+          ] as Transform
+        ).position;
         collect(
           new SetTransformCommand("a", {
             position: [a[0] + 1, a[1], a[2]],
@@ -162,21 +186,37 @@ describe("HistoryManager", () => {
     );
 
     expect(history.stacks.undoStack).toEqual([
-      "프리셋",
+      "SetTransform",
     ]);
     expect(
-      history.state.components.transform["a"].position,
+      (
+        history.state.components.transform[
+          "a"
+        ] as Transform
+      ).position,
     ).toEqual([1, 2, 3]);
     expect(
-      history.state.components.transform["a"].scale,
+      (
+        history.state.components.transform[
+          "a"
+        ] as Transform
+      ).scale,
     ).toEqual([2, 2, 2]);
 
     history.undo();
     expect(
-      history.state.components.transform["a"].position,
+      (
+        history.state.components.transform[
+          "a"
+        ] as Transform
+      ).position,
     ).toEqual([0, 0, 0]);
     expect(
-      history.state.components.transform["a"].scale,
+      (
+        history.state.components.transform[
+          "a"
+        ] as Transform
+      ).scale,
     ).toEqual([1, 1, 1]);
   });
 
@@ -185,13 +225,12 @@ describe("HistoryManager", () => {
 
     const history = new HistoryManager(store);
 
-    // 첫 변경
     history.execute(
       new SetTransformCommand("a", {
         position: [10, 0, 0],
       }),
     );
-    // 두 번째 변경
+
     history.execute(
       new SetTransformCommand("a", {
         position: [20, 0, 0],
@@ -199,12 +238,14 @@ describe("HistoryManager", () => {
     );
 
     expect(history.stacks.undoStack).toEqual([
-      "이동1",
-      "이동2",
+      "SetTransform",
+      "SetTransform",
     ]);
-    history.undo(); // 이동2 취소
+
+    history.undo();
+
     expect(history.stacks.redoStack).toEqual([
-      "이동2",
+      "SetTransform",
     ]);
 
     // 새 실행 → redo 비워야 함
@@ -214,12 +255,16 @@ describe("HistoryManager", () => {
       }),
     );
     expect(history.stacks.undoStack).toEqual([
-      "이동1",
-      "이동3",
+      "SetTransform",
+      "SetTransform",
     ]);
     expect(history.stacks.redoStack).toEqual([]);
     expect(
-      history.state.components.transform["a"].position,
+      (
+        history.state.components.transform[
+          "a"
+        ] as Transform
+      ).position,
     ).toEqual([30, 0, 0]);
   });
 
