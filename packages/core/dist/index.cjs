@@ -820,11 +820,28 @@ var m2_to_3 = {
   }
 };
 
+// src/migration/migrations/3_to_4.ts
+var m3_to_4 = {
+  from: 3,
+  to: 4,
+  apply(prev) {
+    const newState = {
+      version: 4,
+      entities: { ...prev.entities },
+      components: {
+        ...prev.components
+      }
+    };
+    return newState;
+  }
+};
+
 // src/migration/registry.ts
 var MIGRATIONS = [
   m0_to_1,
   m1_to_2,
-  m2_to_3
+  m2_to_3,
+  m3_to_4
 ];
 var zNum = zod.z.number();
 var zVec3Finite = zod.z.tuple([zNum, zNum, zNum]);
@@ -873,7 +890,7 @@ var z_v2 = zod.z.object({
     )
   })
 });
-zod.z.object({
+var z_v3 = zod.z.object({
   version: zod.z.literal(3),
   entities: zod.z.record(
     zod.z.string(),
@@ -894,8 +911,8 @@ zod.z.object({
     material: zod.z.record(zod.z.string(), zod.z.string()).optional()
   })
 });
-zod.z.object({
-  version: zod.z.literal(CURRENT_SCHEMA_VERSION),
+var z_v4 = zod.z.object({
+  version: zod.z.literal(4),
   entities: zod.z.record(
     zod.z.string(),
     zod.z.object({
@@ -935,7 +952,9 @@ var zAnyVersion = zod.z.preprocess(
     }),
     // `version` 필드가 옵셔널이면 공통된 필드가 존재하지 않으므로 discriminated union일 수 없다.
     z_v1,
-    z_v2
+    z_v2,
+    z_v3,
+    z_v4
   ])
 );
 function parseVersioned(input) {
@@ -987,13 +1006,11 @@ function migrateState(input, options) {
         migrateTo
       );
     }
-    migratedState = currentMigration.apply(
-      migratedState
-    );
+    migratedState = currentMigration.apply(migratedState);
   }
-  const invariantCheckedState = assertInvariants("onload")(
-    migratedState
-  );
+  const invariantCheckedState = assertInvariants(
+    "onload"
+  )(migratedState);
   return invariantCheckedState;
 }
 

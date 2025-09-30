@@ -1,5 +1,7 @@
 import z$1, { z } from 'zod';
 
+type EntityId = string;
+
 declare const z_v4: z.ZodObject<{
     version: z.ZodLiteral<4>;
     entities: z.ZodRecord<z.ZodString, z.ZodObject<{
@@ -54,8 +56,6 @@ declare const assertInvariants: (p1: InvariantMode) => (p2: {
         material?: Record<string, string> | undefined;
     };
 };
-
-type EntityId = string;
 
 declare function addEntity(state: State, id: EntityId, name: string): State;
 declare function removeEntity(state: State, id: EntityId): State;
@@ -316,4 +316,4 @@ declare class HistoryManager {
 
 declare const version: () => string;
 
-export { AddEntityCommand, CURRENT_SCHEMA_VERSION, ClearMaterialCommand, ClearMeshCommand, type Command, CompositeCommand, DEFAULT_TRANSFORM, type Entity, HistoryManager, type InvariantMode, type Listener, RemoveEntityCommand, SetMaterialCommand, SetMeshCommand, SetTransformCommand, type State, Store, type Transform, type Vec3, addEntity, applyCommand, assertInvariants, changedAny, changedEntity, collectChanges, createEmptyState, diff, diffEntities, diffMaterial, diffMesh, diffTransform, group, removeEntity, setTransform, undoCommand, version };
+export { AddEntityCommand, CURRENT_SCHEMA_VERSION, ClearMaterialCommand, ClearMeshCommand, type Command, CompositeCommand, DEFAULT_TRANSFORM, type Entity, type EntityId, HistoryManager, type InvariantMode, type Listener, RemoveEntityCommand, SetMaterialCommand, SetMeshCommand, SetTransformCommand, type State, Store, type Transform, type Vec3, addEntity, applyCommand, assertInvariants, changedAny, changedEntity, collectChanges, createEmptyState, diff, diffEntities, diffMaterial, diffMesh, diffTransform, group, removeEntity, setTransform, undoCommand, version };

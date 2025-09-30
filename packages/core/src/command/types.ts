@@ -18,10 +18,7 @@ export interface Transform {
 export type MeshRef = string;
 export type MaterialRef = string;
 
-export type MeshRefMap = Record<
-  EntityId,
-  MeshRef
->;
+export type MeshRefMap = Record<EntityId, MeshRef>;
 
 export type MaterialRefMap = Record<
   EntityId,

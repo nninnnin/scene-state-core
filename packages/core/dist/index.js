@@ -818,11 +818,28 @@ var m2_to_3 = {
   }
 };
 
+// src/migration/migrations/3_to_4.ts
+var m3_to_4 = {
+  from: 3,
+  to: 4,
+  apply(prev) {
+    const newState = {
+      version: 4,
+      entities: { ...prev.entities },
+      components: {
+        ...prev.components
+      }
+    };
+    return newState;
+  }
+};
+
 // src/migration/registry.ts
 var MIGRATIONS = [
   m0_to_1,
   m1_to_2,
-  m2_to_3
+  m2_to_3,
+  m3_to_4
 ];
 var zNum = z.number();
 var zVec3Finite = z.tuple([zNum, zNum, zNum]);
@@ -871,7 +888,7 @@ var z_v2 = z.object({
     )
   })
 });
-z.object({
+var z_v3 = z.object({
   version: z.literal(3),
   entities: z.record(
     z.string(),
@@ -892,8 +909,8 @@ z.object({
     material: z.record(z.string(), z.string()).optional()
   })
 });
-z.object({
-  version: z.literal(CURRENT_SCHEMA_VERSION),
+var z_v4 = z.object({
+  version: z.literal(4),
   entities: z.record(
     z.string(),
     z.object({
@@ -933,7 +950,9 @@ var zAnyVersion = z.preprocess(
     }),
     // `version` 필드가 옵셔널이면 공통된 필드가 존재하지 않으므로 discriminated union일 수 없다.
     z_v1,
-    z_v2
+    z_v2,
+    z_v3,
+    z_v4
   ])
 );
 function parseVersioned(input) {
@@ -985,13 +1004,11 @@ function migrateState(input, options) {
         migrateTo
       );
     }
-    migratedState = currentMigration.apply(
-      migratedState
-    );
+    migratedState = currentMigration.apply(migratedState);
   }
-  const invariantCheckedState = assertInvariants("onload")(
-    migratedState
-  );
+  const invariantCheckedState = assertInvariants(
+    "onload"
+  )(migratedState);
   return invariantCheckedState;
 }
 
