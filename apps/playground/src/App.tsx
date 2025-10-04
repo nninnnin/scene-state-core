@@ -1,28 +1,12 @@
-import clsx from "clsx";
-import { useCommand, useSceneState } from "@ssc/react";
-import {
-  AddEntityCommand,
-  version as coreVersion,
-} from "@ssc/core";
+import { useSceneState } from "@ssc/react";
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls } from "@react-three/drei";
 
-import EntityMesh from "./components/EntityMesh";
+import EntityMesh from "./scene/components/EntityMesh";
+import PropertyPanel from "./panels/property-panel/PropertyPanel";
+import Toolbar from "./panels/toolbar-panel/Toolbar";
 
 function App() {
   const { sceneState } = useSceneState();
-  const { dispatch } = useCommand();
-
-  const handleAddEntityClick = () => {
-    const random = Math.random() * 100;
-
-    const entityId = "my-id" + random;
-    const entityName = "Justin" + random;
-
-    dispatch(
-      new AddEntityCommand(entityId, entityName),
-    );
-  };
 
   const meshes = Object.entries(
     sceneState.entities,
@@ -33,40 +17,27 @@ function App() {
     return (
       <EntityMesh
         key={`entity-${entityId}`}
+        id={entityId}
         transform={transform}
       />
     );
   });
 
   return (
-    <div className="flex flex-col h-[100dvh]">
-      <div
-        id="navigation-bar"
-        className="bg-gray-100 p-3"
-      >
-        core: {coreVersion()}
-      </div>
+    <div
+      id="app-container"
+      className="flex flex-col h-[100dvh]"
+    >
+      <PropertyPanel />
 
       <Canvas className="flex-1">
         {meshes}
 
         <ambientLight intensity={5} />
-        <OrbitControls />
+        {/* <OrbitControls /> */}
       </Canvas>
 
-      <div
-        id="button-container"
-        className="bg-gray-100 p-5"
-      >
-        <button
-          className={clsx(
-            "bg-amber-200 p-3 px-2 rounded-xl",
-          )}
-          onClick={handleAddEntityClick}
-        >
-          엔티티 추가
-        </button>
-      </div>
+      <Toolbar />
     </div>
   );
 }
