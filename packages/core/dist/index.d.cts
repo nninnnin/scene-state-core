@@ -107,6 +107,7 @@ declare class Store {
             material?: Record<string, string> | undefined;
         };
     };
+    getEntity(entityId: EntityId): Entity | undefined;
     update(next: State): void;
     dispatch(command: Command): void;
     subscribe(listener: Listener): () => boolean;

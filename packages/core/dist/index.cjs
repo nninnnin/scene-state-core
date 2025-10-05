@@ -323,6 +323,10 @@ var Store = class {
   get state() {
     return this.currentState;
   }
+  getEntity(entityId) {
+    const entity = this.currentState.entities[entityId];
+    return entity;
+  }
   update(next) {
     if (this.currentState === next) return;
     const prev = this.currentState;

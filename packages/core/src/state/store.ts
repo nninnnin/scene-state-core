@@ -1,6 +1,7 @@
-import { State } from "./types";
+import { Entity, State } from "./types";
 import { collectChanges } from "./selectors";
 import { Command } from "../command/types";
+import { EntityId } from "../common";
 
 export class Store {
   private currentState: State;
@@ -12,6 +13,13 @@ export class Store {
 
   get state() {
     return this.currentState;
+  }
+
+  getEntity(entityId: EntityId): Entity | undefined {
+    const entity =
+      this.currentState.entities[entityId];
+
+    return entity;
   }
 
   update(next: State) {
@@ -55,5 +63,3 @@ export type Listener = (arg: {
   next: State;
   changes: ReturnType<typeof collectChanges>;
 }) => void;
-
-let current: State;
