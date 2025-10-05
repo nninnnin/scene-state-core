@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import { StoreContext } from "../components/SceneStateProvider";
 
-const useStore = () => {
+export const useStore = () => {
   const storeRef = useContext(StoreContext);
 
   if (!storeRef?.current) {
@@ -15,5 +15,3 @@ const useStore = () => {
     store: storeRef.current,
   };
 };
-
-export default useStore;

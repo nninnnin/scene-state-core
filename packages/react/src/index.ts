@@ -5,3 +5,4 @@ export function useExample() {
 export { SceneStateProvider } from "./components/SceneStateProvider";
 export { useSceneState } from "./hooks/useSceneState";
 export { useCommand } from "./hooks/useCommand";
+export { useStore } from "./hooks/useStore";

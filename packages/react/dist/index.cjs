@@ -39,7 +39,6 @@ var useStore = () => {
     store: storeRef.current
   };
 };
-var useStore_default = useStore;
 
 // src/hooks/useSceneState.tsx
 var fallbackSelector = (state) => state;
@@ -47,7 +46,7 @@ var fallbackEqualityChecker = Object.is;
 function useSceneState(selector, equals) {
   const select = selector ?? fallbackSelector;
   const isEqual = equals ?? fallbackEqualityChecker;
-  const { store } = useStore_default();
+  const { store } = useStore();
   const [sceneState, setSceneState] = react.useState(() => {
     const state = store?.state;
     return selector ? selector(state) : state;
@@ -99,5 +98,6 @@ exports.SceneStateProvider = SceneStateProvider;
 exports.useCommand = useCommand;
 exports.useExample = useExample;
 exports.useSceneState = useSceneState;
+exports.useStore = useStore;
 //# sourceMappingURL=index.cjs.map
 //# sourceMappingURL=index.cjs.map

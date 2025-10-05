@@ -1,5 +1,6 @@
 import * as react_jsx_runtime from 'react/jsx-runtime';
 import { PropsWithChildren } from 'react';
+import * as _ssc_core from '@ssc/core';
 import { State, Store, Command, group } from '@ssc/core';
 
 type ProviderProps = PropsWithChildren<{
@@ -21,6 +22,10 @@ declare const useCommand: () => {
     group: typeof group;
 };
 
+declare const useStore: () => {
+    store: _ssc_core.Store;
+};
+
 declare function useExample(): string;
 
-export { SceneStateProvider, useCommand, useExample, useSceneState };
+export { SceneStateProvider, useCommand, useExample, useSceneState, useStore };

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Listener, State } from "@ssc/core";
-import useStore from "./useStore";
+import { useStore } from "./useStore";
 
 type EqualsFn<T> = (a: T, b: T) => boolean;
 

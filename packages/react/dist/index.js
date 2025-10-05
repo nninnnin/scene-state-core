@@ -1,4 +1,4 @@
-import { createContext, useRef, useState, useEffect, useContext } from 'react';
+import { createContext, useRef, useContext, useState, useEffect } from 'react';
 import { Store, HistoryManager, group } from '@ssc/core';
 import { jsx } from 'react/jsx-runtime';
 
@@ -37,7 +37,6 @@ var useStore = () => {
     store: storeRef.current
   };
 };
-var useStore_default = useStore;
 
 // src/hooks/useSceneState.tsx
 var fallbackSelector = (state) => state;
@@ -45,7 +44,7 @@ var fallbackEqualityChecker = Object.is;
 function useSceneState(selector, equals) {
   const select = selector ?? fallbackSelector;
   const isEqual = equals ?? fallbackEqualityChecker;
-  const { store } = useStore_default();
+  const { store } = useStore();
   const [sceneState, setSceneState] = useState(() => {
     const state = store?.state;
     return selector ? selector(state) : state;
@@ -93,6 +92,6 @@ function useExample() {
   return "react-0.0.0";
 }
 
-export { SceneStateProvider, useCommand, useExample, useSceneState };
+export { SceneStateProvider, useCommand, useExample, useSceneState, useStore };
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map
