@@ -15,7 +15,11 @@ export class Store {
     return this.currentState;
   }
 
-  getEntity(entityId: EntityId): Entity | undefined {
+  getEntity(
+    entityId: EntityId | null,
+  ): Entity | undefined | null {
+    if (entityId === null) return null;
+
     const entity =
       this.currentState.entities[entityId];
 

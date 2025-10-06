@@ -322,6 +322,7 @@ var Store = class {
     return this.currentState;
   }
   getEntity(entityId) {
+    if (entityId === null) return null;
     const entity = this.currentState.entities[entityId];
     return entity;
   }
